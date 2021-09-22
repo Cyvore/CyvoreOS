@@ -1,10 +1,8 @@
 
 import requests
 import socket
-import sys
 import urllib3
 import json
-from checkObject import Check
 from Output import PrettyPrint
 import logging
 

@@ -1,8 +1,5 @@
 
 import requests
-import socket
-import sys
-import urllib3
 import json
 import time
 from checkObject import Check

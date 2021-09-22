@@ -67,7 +67,7 @@ setup(
         'pywin32==300',
         'pywin32-ctypes==0.2.0',
         'queuelib==1.5.0',
-        'requests==2.13.0',
+        'requests',
         'requests-ntlm==1.0.0',
         'scapy==2.4.4',
         'Scrapy==2.4.1',
@@ -104,7 +104,7 @@ setup(
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
-        'Intended Audience :: Everyone',
+        'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
         'License :: OSI Approved :: MIT License',  # Again, pick a license
         'Programming Language :: Python :: 3'

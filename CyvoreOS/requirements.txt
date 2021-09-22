@@ -80,7 +80,6 @@ validators==0.11.3
 w3lib==1.22.0
 yarg==0.1.9
 zope.interface==5.2.0
-
 pytesseract~=0.3.7
 opencv-python~=4.5.2.54
 favicon~=0.7.0

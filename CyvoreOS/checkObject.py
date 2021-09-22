@@ -1,5 +1,4 @@
 from urlextract import URLExtract
-import argparse
 from datetime import datetime
 import socket
 import logging

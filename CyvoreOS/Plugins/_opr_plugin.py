@@ -1,9 +1,6 @@
-from bs4 import BeautifulSoup
-
 import requests
 import urllib.request
 import urllib.parse
-import shutil
 import re
 from checkObject import Check
 

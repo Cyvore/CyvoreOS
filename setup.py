@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='CyvoreOS',
     packages=['CyvoreOS'],
-    version='0.1',
+    version='0.1.5',
     license='MIT',  #https://help.github.com/articles/licensing-a-repository
     description='Next-Gen email threat prevention',
     author='Cyvore',

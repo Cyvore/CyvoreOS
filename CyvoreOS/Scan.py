@@ -2,7 +2,8 @@ from CyvoreOS.checkObject import Check
 from CyvoreOS.checkObject import Case
 from CyvoreOS.Output.Reporter import MakeCaseReportJson
 import importlib
-import CyvoreOS.Plugins
+from CyvoreOS import Plugins
+from CyvoreOS import interfaces
 import pkgutil
 import string
 import logging
@@ -51,7 +52,7 @@ def strings(filename, min=4):
             yield result
 
 
-def lsCommand(args):
+def listplugins():
     logging.info("Running ls option")
     for plugin in discovered_plugins:
         current_plugin = importlib.import_module(plugin)
@@ -60,7 +61,7 @@ def lsCommand(args):
     exitWithLog("")
 
 
-def installCommand(args):
+def install():
     logging.info("Running install option")
     path = "\"C:\\Python39\\python.exe\" \"" + __file__ + "\" -uf \"%1\""
     logging.debug(f"Path in registry:\t{path}")
@@ -79,14 +80,18 @@ def urlFromFileCommand(args):
     return testCase.createChecks()
 
 
-def queryStringCommand(args):
+def scanstring(string):
     testCase = Case()
-    logging.info(f"Check string:\n\t{args.queryString}")
+    logging.info(f"Check string:\n\t{string}")
     logging.info(f"Create case:\n\t{testCase.caseID}")
-    print("Check file:\n\t", args.queryString)
+    print("Check file:\n\t", string)
     print(f"Create case:\n\t{testCase.caseID}")
-    testCase.raw = args.queryString
-    return testCase.createChecks()
+    testCase.raw = string
+    testCase.createChecks()
+    for plugin in discovered_plugins:
+        for chk in testCase.checkArray:
+            current_plugin = importlib.import_module(plugin)
+            current_plugin.run_check(chk)
 
 
 def initmodule(command, arg):

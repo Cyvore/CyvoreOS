@@ -1,18 +1,14 @@
-from checkObject import Check
-from checkObject import Case
-import interfaces.outlook_intgration
-import interfaces.right_click_install
-from Output.Reporter import MakeCaseReportJson
+from CyvoreOS.checkObject import Check
+from CyvoreOS.checkObject import Case
+from CyvoreOS.Output.Reporter import MakeCaseReportJson
 import importlib
-import Plugins
-import sys
-import os
+import CyvoreOS.Plugins
 import pkgutil
 import string
-import argparse
 import logging
+import CyvoreOS.interfaces
 
-logging.basicConfig(filename='nrw_main.log',
+logging.basicConfig(filename='cyvore_main.log',
                     level=logging.DEBUG,
                     format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 printable = set(string.printable)
@@ -27,7 +23,7 @@ def iter_namespace(ns_pkg):
 discovered_plugins = {
     name: importlib.import_module(name)
     for finder, name, ispkg
-    in iter_namespace(Plugins)
+    in iter_namespace(CyvoreOS.Plugins)
 }
 
 
@@ -53,6 +49,7 @@ def strings(filename, min=4):
             result = ""
         if len(result) >= min:  # catch result at EOF
             yield result
+
 
 def lsCommand(args):
     logging.info("Running ls option")

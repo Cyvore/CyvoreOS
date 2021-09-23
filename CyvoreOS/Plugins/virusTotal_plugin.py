@@ -1,9 +1,8 @@
-
 import requests
 import json
 import time
-from checkObject import Check
-from Output.PrettyPrint import mycolors
+from CyvoreOS.checkObject import Check
+from CyvoreOS.Output.PrettyPrint import mycolors
 from colorama import init, Fore, Back, Style
 
 # To Do:

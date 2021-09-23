@@ -1,9 +1,8 @@
-
 import requests
 import socket
 import urllib3
 import json
-from Output import PrettyPrint
+from CyvoreOS.Output import PrettyPrint
 import logging
 
 # To Do:

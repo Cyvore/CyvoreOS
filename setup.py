@@ -9,7 +9,7 @@ setup(
     author='Cyvore',
     author_email='info@cyvore.com',
     url='https://github.com/user/reponame',  # Our website Link
-    download_url='https://github.com/barakinio/CyvoreOS/archive/refs/tags/v_0.1.tar.gz',  # Release Link
+    download_url='https://github.com/barakinio/CyvoreOS/archive/refs/tags/v_0.1.5.tar.gz',  # Release Link
     keywords=['Anti-Phishing', 'Email-Scanner', 'Optical-Recognition'],
     install_requires=[
         'levenshtein',

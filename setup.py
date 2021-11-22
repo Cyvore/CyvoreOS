@@ -20,7 +20,8 @@ setup(
         'urllib3',
         'colorama',
         'future',
-        'urlextract'
+        'urlextract',
+        'blockcypher'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

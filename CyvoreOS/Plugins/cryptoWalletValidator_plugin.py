@@ -5,19 +5,14 @@ from datetime import timedelta
 from blockcypher import get_address_overview
 from blockcypher import get_address_details
 
+# Coin options: bitcoin, litecoin, dogecoin, dashcoin
+coins = ['btc', 'ltc', 'doge', 'dash']  
 
-coins = ['btc', 'ltc', 'doge', 'dash']  # coin options: bitcoin, litecoin, dogecoin, dashcoin
-
-test1 = '16ftSEQ4ctQFDtVZiUBusQUjRrGhM3JYwe' # good address
-test2 = '16ftSEQ4ctQFDtVZiUBusQUjRrGhM3JYwr' # corrupt address
-test3 = 'LaXXasBpGtqnzi7AMywnujYeD3BFD1NFv2' # ltc reported address
-test4 = '3D2oetdNuZUqQHPJmcMDDHYoqkyNVsFk9r' # good address
-
-# consts
+# Consts
 amountToCheck = 30
 suspiciousAmount = amountToCheck / 2
-suspiciousRange = 20000 # If increased, more wallets would fall under the definition of suspicious transaction error
-# BLOCKCYPHERAPIKEY = 'ad1d45b6c8b6440e8106a4f6ea5148cb'  # block cypher token (optional, not needed in read only get requests)
+suspiciousRange = 20000 
+# Needs to be tuned, If increased, more wallets would fall under the definition of suspicious transaction error
 
 class BlackListError(Exception):
     """Raised when the address appears on a blacklist"""
@@ -35,12 +30,15 @@ class transaction:
     """
     representation of a single transaction by date and balance in the account
     """
-    def __init__(self, TranDate, balance:int):
+
+    def __init__(self, TranDate:datetime, balance:int):
         self.balance = balance
         self.TranDate = TranDate
+    
     @property
     def date(self):
         return self.TranDate
+    
     def balance(self):
         return self.balance
     
@@ -55,6 +53,7 @@ class transactionArray:
     Class that holds all the transactions and balance in a crypto account
     Available manipulations on the data structure: sorting, average(with a range) and two validations
     """
+    
     def __init__(self) -> None:
         self.arr = []
 
@@ -116,7 +115,9 @@ class transactionArray:
         for i in range(r, l):
             if abs(self.transfer(i) - avg) < suspiciousRange:
                 counter += 1
-        if counter >= l - r - 3: # l - r - 3 is the suspicious amount of transactions I decided on
+        
+        # l - r - 3 is the suspicious amount of transactions, TBD about the number 3.
+        if counter >= l - r - 3:
             raise transactionError
 
     def suspiciousActivityByDate(self):
@@ -126,27 +127,34 @@ class transactionArray:
         which indicates a phishing scam.
         Algorithm used: window algorithm on a sorted list for achieving correct ranges in O(n) run-time
         """
-        timeLimit = timedelta(days=30)
+        
+        timeLimit = timedelta(days=amountToCheck)
         r, l = 0, 0
 
         while l < (len(self.arr) - 2):
             l += 1
-            if timeLimit < self.arr[l].date - self.arr[r].date and l-r > 20: # l-r > 20 because we need at least 20 suspicious transactions to suspect a scam
+            
+            # l-r > 15 because we need at least 15 suspicious transactions to suspect a scam
+            if timeLimit < self.arr[l].date - self.arr[r].date and l-r > suspiciousAmount:
                 self.checkForScam(r, l - 1)
-                while timeLimit < self.arr[l].date - self.arr[r].date and r < l:    # resize the window to avoid repeating checks
+
+                # Resize the window to avoid repeating checks
+                while timeLimit < self.arr[l].date - self.arr[r].date and r < l:   
                     r += 1
         raise Verified
 
-"""
-Second validation: Appearance on a blacklist
-"""
+
 def blacklistValid(wallet) -> bool:
+    """
+    Second validation: Appearance on a blacklist
+    """
+
     URLBLACKLIST = f'https://api.cryptoscamdb.org/v1/check/{wallet}'
 
     payload={}
     headers = {}
 
-    response = requests.request("GET", URLBLACKLIST, headers=headers, data=payload) # stuck if VPN is active
+    response = requests.request("GET", URLBLACKLIST, headers=headers, data=payload, timeout=15) # stuck if VPN is active
 
     info = json.loads(response.content.decode("utf-8"))
     
@@ -164,6 +172,7 @@ def transactionsValid(wallet):
     """
     Third validation: transactions 
     """
+
     transac = get_address_details(wallet)["txrefs"]
     db = transactionArray()
 
@@ -185,7 +194,7 @@ def walletVerification(wallet):
 
     for coin in coins:
         try:
-            assert get_address_overview(wallet, coin) # first validation
+            assert get_address_overview(wallet, coin)
             assert blacklistValid(wallet)
             assert transactionsValid(wallet)
 
@@ -202,19 +211,9 @@ def walletVerification(wallet):
 
 
 def run_check(chk):
-    output = walletVerification(chk)
-    print (output)  # displays verdict of the examination
-
-    # chk.pluginOutput["cryptoWalletValidator_plugin"] = []
-    # for url in chk.getUrls():
-    #     print("PluginName check: ", url)
-    #     chk.pluginOutput["cryptoWalletValidator_plugin"].append(output)
-
-        
+    output = walletVerification(chk.raw)
+    chk.pluginOutput["cryptoWalletValidator_plugin"] = output
+  
 def describe():
     desc = """Verification of a cryptocurrency wallet"""
     return desc
-
-##### testing #####
-if __name__ == '__main__':
-    run_check(test1)

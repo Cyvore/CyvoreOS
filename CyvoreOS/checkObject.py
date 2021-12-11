@@ -1,7 +1,10 @@
-from urlextract import URLExtract
 from datetime import datetime
 import socket
 import logging
+import re
+
+URLREGEX = r"(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})"
+
 
 class Plugin:
     """
@@ -40,7 +43,12 @@ class Check:
         """
         Get urls from raw data
         """
-        return URLExtract().find_urls(self.raw)
+        logging.info("Getting URLs")
+        try:
+            return re.findall(URLREGEX, self.raw)
+        except Exception as e:
+            logging.info(e)
+            return ""
     
     def getDict(self):
         """
@@ -97,6 +105,7 @@ class Case:
     checkArray will hold every lead and will only repersent one value - url/file/crypto wallet.
     """  
     def __init__(self, raw):
+        logging.info("Initializing Case")
         self.caseID = self.getCaseID()
         self.checkArray = []
         self.raw = raw
@@ -118,7 +127,12 @@ class Case:
         """
         Get urls from raw data
         """
-        return URLExtract().find_urls(self.raw)
+        logging.info("Getting URLs")
+        try:
+            return re.findall(URLREGEX, self.raw)
+        except Exception as e:
+            logging.info(e)
+            return ""
     
     def size(self):
         """
@@ -131,6 +145,7 @@ class Case:
         Create checks array from raw data, check could be either one url/file/crypto wallet.
         Changing self.checkArray. 
         """
+        logging.info("Creating Checks")
         unique_urls = []
         urls = self.getUrls()
         if len(urls) > 0:        

@@ -5,7 +5,7 @@ import sys
 import urllib3
 import json
 import time
-from Output.PrettyPrint import mycolors
+from CyvoreOS.Output.PrettyPrint import mycolors
 from colorama import init, Fore, Back, Style
 
 # To Do:

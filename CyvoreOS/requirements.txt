@@ -6,4 +6,4 @@ Pillow
 urllib3
 colorama
 future
-urlextract
+re

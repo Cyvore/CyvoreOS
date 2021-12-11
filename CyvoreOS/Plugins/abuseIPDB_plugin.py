@@ -3,7 +3,7 @@ import socket
 import sys
 import urllib3
 import json
-from Output import PrettyPrint
+from CyvoreOS.Output import PrettyPrint
 import logging
 
 # To Do:
@@ -49,8 +49,8 @@ def checkUrl(url):
 def run_check(chk):
     plugin_name = "abuseIPDB"
     output = chk.raw + " Not a valid url"
-    if checkUrl(chk.getUrls):
-        output = abuseIPDBCheck(chk.getUrls())
+    if checkUrl(chk.raw):
+        output = abuseIPDBCheck(chk.raw)
     chk.add_plugin(plugin_name,output)
     
 def describe():

@@ -118,8 +118,6 @@ class Case:
         """
         Get urls from raw data
         """
-        print("self.raw =",self.raw)
-        print("URLExtract().find_urls(self.raw) =",URLExtract().find_urls(self.raw))
         return URLExtract().find_urls(self.raw)
     
     def size(self):

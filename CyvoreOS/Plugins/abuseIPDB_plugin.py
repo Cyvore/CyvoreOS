@@ -1,8 +1,9 @@
 import requests
 import socket
+import sys
 import urllib3
 import json
-from CyvoreOS.Output import PrettyPrint
+from Output import PrettyPrint
 import logging
 
 # To Do:
@@ -46,15 +47,12 @@ def checkUrl(url):
     return False
 
 def run_check(chk):
-    for url in chk.getUrls():
-        logging.debug(f"abuseIPDB check: {url}")
-        chk.pluginOutput["abuseIPDB"] = []
-        print("abuseIPDB check: ", url)
-        if checkUrl(url):
-            #logging.debug(url," is up")
-            json_output = abuseIPDBCheck(url)
-            chk.pluginOutput["abuseIPDB"].append(json_output)
-
+    plugin_name = "abuseIPDB"
+    output = chk.raw + " Not a valid url"
+    if checkUrl(chk.getUrls):
+        output = abuseIPDBCheck(chk.getUrls())
+    chk.add_plugin(plugin_name,output)
+    
 def describe():
     desc = """This plugin query url/ip in abuse IP DB database """
     return desc

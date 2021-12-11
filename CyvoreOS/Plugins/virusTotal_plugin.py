@@ -1,8 +1,11 @@
+
 import requests
+import socket
+import sys
+import urllib3
 import json
 import time
-from CyvoreOS.checkObject import Check
-from CyvoreOS.Output.PrettyPrint import mycolors
+from Output.PrettyPrint import mycolors
 from colorama import init, Fore, Back, Style
 
 # To Do:
@@ -211,11 +214,9 @@ def virusTotalCheck(url):
     return response
 
 def run_check(chk):
-    chk.pluginOutput["virusTotal"] = []
-    for url in chk.getUrls():
-        print("virusTotal check: ", url)
-        chk.pluginOutput["virusTotal"].append(vturlcheck(url, 'params'))
-
+    plugin_name = "virusTotal"
+    output = vturlcheck(chk.getUrls(), 'params')
+    chk.add_plugin(plugin_name,output)
         
 def describe():
     desc = """This plugin query url/ip in VirusTotal database """

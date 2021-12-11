@@ -1,11 +1,7 @@
-from checkObject import Check
-
 def run_check(chk):
-    chk.pluginOutput["PluginName"] = []
-    for url in chk.getUrls():
-        print("PluginName check: ", url)
-        chk.pluginOutput["PluginName"].append(output)
-
+    plugin_name = "Template-Plugin"
+    output = "example for output"
+    chk.add_plugin(plugin_name,output)
         
 def describe():
     desc = """Description of PluginName in a sentence """

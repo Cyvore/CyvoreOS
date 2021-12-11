@@ -212,7 +212,9 @@ def walletVerification(wallet):
 
 def run_check(chk):
     output = walletVerification(chk.raw)
-    chk.pluginOutput["cryptoWalletValidator_plugin"] = output
+    plugin_name = "cryptoWalletValidator-Plugin"
+    output = "cryptoWalletValidator-Plugin check: " + chk.raw
+    chk.add_plugin(plugin_name,output)
   
 def describe():
     desc = """Verification of a cryptocurrency wallet"""

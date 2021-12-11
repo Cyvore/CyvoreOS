@@ -3,11 +3,11 @@ from CyvoreOS.checkObject import Case
 from CyvoreOS.Output.Reporter import MakeCaseReportJson
 import importlib
 from CyvoreOS import Plugins
-from CyvoreOS import interfaces
+#from CyvoreOS import interfaces
 import pkgutil
 import string
 import logging
-import CyvoreOS.interfaces
+#import CyvoreOS.interfaces
 
 logging.basicConfig(filename='cyvore_main.log',
                     level=logging.DEBUG,

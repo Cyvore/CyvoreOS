@@ -141,20 +141,15 @@ class Case:
                     unique_urls.append(i) 
             logging.debug("Create checks for URLs:")
             
-            print("Create checks for URLs:")
             for url in unique_urls:
                 tmpChk = Check(self.caseID, url)
                 self.checkArray.append(tmpChk)    
             logging.debug(f"Checks in case: {self.caseID}:")
             
-            print(f"Checks in case: {self.caseID}:") 
             for chk in self.checkArray:
                 logging.debug(f"\t {chk.raw}")
-                print("\t" + chk.raw)
         else:
-            logging.warning(f"No URLs found in case.")
-            print("No URLs found")
-        
+            logging.warning(f"No URLs found in case.")        
     
     def getDict(self):
         """

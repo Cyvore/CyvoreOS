@@ -6,7 +6,7 @@ FOLDERNAME = "CyvoreOS"
 setup(
     name='CyvoreOS',
     packages=['CyvoreOS', os.path.join(FOLDERNAME, "Plugins"), os.path.join(FOLDERNAME, "Output"), os.path.join(FOLDERNAME, "interfaces")],
-    version='0.1.7.2.1',
+    version='0.1.7.2.2',
     license='MIT',  #https://help.github.com/articles/licensing-a-repository
     description='Next-Gen email threat prevention',
     author='Cyvore',

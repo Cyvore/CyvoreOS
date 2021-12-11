@@ -24,7 +24,7 @@ def iter_namespace(ns_pkg):
 discovered_plugins = {
     name: importlib.import_module(name)
     for finder, name, ispkg
-    in iter_namespace(CyvoreOS.Plugins)
+    in iter_namespace(Plugins)
 }
 
 

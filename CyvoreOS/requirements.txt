@@ -1,0 +1,9 @@
+levenshtein
+requests
+favicon
+ImageHash
+Pillow
+urllib3
+colorama
+future
+re

@@ -5,13 +5,10 @@ import urllib3
 import json
 from CyvoreOS.Output import PrettyPrint
 import logging
-import configparser
+import os
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-ABUSE_IPDB_KEY = config['abuseIPDB.com']['abuseIPDBKey']
-ABUSE_IPDB_URL = config['abuseIPDB.com']['abuseIPDBUrl']
+ABUSE_IPDB_KEY = os.environ['ABUSE_IPDB_KEY']
+ABUSE_IPDB_URL = 'https://api.abuseipdb.com/api/v2/check'
  
 def abuseIPDBCheck(check_url):
     querystring = {

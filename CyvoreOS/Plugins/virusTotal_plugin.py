@@ -7,13 +7,10 @@ import json
 import time
 from CyvoreOS.Output.PrettyPrint import mycolors
 from colorama import init, Fore, Back, Style
-import configparser
+import os
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-VIRUS_TOTAL_KEY = config['virustotal.com']['virusTotalKey']
-VIRUS_TOTAL_URL = config['virustotal.com']['virusTotalUrl']
+VIRUS_TOTAL_KEY = os.environ['VIRUS_TOTAL_KEY']
+VIRUS_TOTAL_URL = 'https://www.virustotal.com/vtapi/v2/url/scan'
 urlvtreport = 'https://www.virustotal.com/vtapi/v2/url/report' 
 
 

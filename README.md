@@ -3,7 +3,7 @@
 
 Cyvore os is an open source tool for auto phishing detection.
 
-You are welcome to visit our site [cyvore.com](cyvore.com)
+You are welcome to visit our site [cyvore.com](https://cyvore.com)
 
 ### Install:
 There are 2 simple ways to install this tool:

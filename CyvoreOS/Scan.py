@@ -76,9 +76,9 @@ def urlFromFileCommand(args):
     return testCase
 
 
-def scanstring(string):
-    testCase = Case(string)
-    logging.info(f"Check string:\n\t{string}")
+def scanstring(testdata):
+    testCase = Case(testdata)
+    logging.info(f"Check string:\n\t{testdata}")
     logging.info(f"Create case:\n\t{testCase.caseID}")
     for plugin in discovered_plugins:
         for chk in testCase.checkArray:

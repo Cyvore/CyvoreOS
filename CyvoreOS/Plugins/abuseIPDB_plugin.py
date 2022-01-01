@@ -55,3 +55,6 @@ def run_check(chk):
 def describe():
     desc = """This plugin query url/ip in abuse IP DB database """
     return desc
+
+def tags():
+    tags_list = ["ip", "domain"]

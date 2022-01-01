@@ -220,3 +220,6 @@ def run_check(chk):
 def describe():
     desc = """This plugin query url/ip in VirusTotal database """
     return desc
+
+def tags():
+    tags_list = ["url", "file", "ip", "hash", "domain"]

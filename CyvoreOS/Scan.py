@@ -76,7 +76,7 @@ def urlFromFileCommand(args):
     return testCase
 
 
-def scanstring(testdata, tags=[]):
+def scanstring(testdata, tags=False):
     testCase = Case(testdata)
     logging.info(f"Check string:\n\t{testdata}")
     logging.info(f"Create case:\n\t{testCase.caseID}")
@@ -84,7 +84,7 @@ def scanstring(testdata, tags=[]):
         for chk in testCase.checkArray:
             current_plugin = importlib.import_module(plugin)
             if tags:
-                if any(tag in tags for tag in current_plugin.tags()):
+                if any(tag in chk.tags for tag in current_plugin.tags()):
                     current_plugin.run_check(chk)
                 else:
                     plugin_name = str(plugin).split(".")[1].removesuffix("_plugin")

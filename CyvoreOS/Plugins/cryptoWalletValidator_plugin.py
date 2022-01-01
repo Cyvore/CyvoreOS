@@ -219,3 +219,7 @@ def run_check(chk):
 def describe():
     desc = """Verification of a cryptocurrency wallet"""
     return desc
+
+def tags():
+    tags_list = ["crypto"]
+    return tags_list

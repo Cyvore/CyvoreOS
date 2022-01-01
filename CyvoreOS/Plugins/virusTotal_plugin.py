@@ -223,3 +223,4 @@ def describe():
 
 def tags():
     tags_list = ["url", "file", "ip", "hash", "domain"]
+    return tags_list

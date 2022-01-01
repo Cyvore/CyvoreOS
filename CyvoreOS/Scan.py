@@ -93,7 +93,8 @@ def scanstring(testdata, tags=False):
                 current_plugin.run_check(chk)
     return testCase
 
-def runPlugins(plugins_list, testCase):
+def runPlugins(testdata, plugins_list):
+    testCase = Case(testdata)
     for plugin in discovered_plugins:
         if plugins_list:
             plugin_name = str(plugin).split(".")[1].removesuffix("_plugin")

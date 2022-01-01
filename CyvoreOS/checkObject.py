@@ -2,9 +2,12 @@ from datetime import datetime
 import socket
 import logging
 import re
+import ipaddress
 
+IPV4REGEX = r"((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
+IPV6REGEX = r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))"
 URLREGEX = r"(?i)(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})"
-
+EMAILREGEX = r"([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+"
 
 class Plugin:
     """
@@ -30,7 +33,7 @@ class Check:
     When check is made as part of a Case object it will hold one value, url/file/crypto wallet.
     When check is self made it could hold all types of data in raw. 
     """
-    def __init__(self, caseID, raw):
+    def __init__(self, caseID, raw, tag=[]):
         self.raw = raw
         self.reputation = 0
         self.hash = ""
@@ -38,18 +41,9 @@ class Check:
         self.checkID = self.getID()
         self.caseID = caseID
         self.tags = []
+        if tag and type(tag) == list:
+            self.tags = tag
         self.timestemp = datetime.now().strftime("%m%d%Y%H%M%S")
-        
-    def getUrls(self):
-        """
-        Get urls from raw data
-        """
-        logging.info("Getting URLs")
-        try:
-            return re.findall(URLREGEX, self.raw)
-        except Exception as e:
-            logging.info(e)
-            return ""
     
     def getDict(self):
         """
@@ -71,8 +65,8 @@ class Check:
         # logic TBD
         if self.hash != "":
             id = self.hash
-        elif self.getUrls() != "":
-            id = self.getUrls()[0]
+        elif self.raw != "":
+            id = self.raw
         else:
             id = ""
         return id
@@ -124,48 +118,86 @@ class Case:
         id = "%s-%s"%(timeStamp, hostPart)
         return id
     
-    def getUrls(self):
+    def urlchecks(self):
         """
-        Get urls from raw data
+        Create check for every unique urls in raw data
         """
-        logging.info("Getting URLs")
         try:
-            return re.findall(URLREGEX, self.raw)
+            logging.info("Querying for URLs")
+            urls =  re.findall(URLREGEX, self.raw)
+            if len(urls) > 0:        
+                logging.debug("Create checks for URLs:")
+                for url in self.getUniques(urls):
+                    tmpChk = Check(self.caseID, url,["url"])
+                    self.checkArray.append(tmpChk)   
+                    logging.debug(f"\t{url}") 
+            else:
+                logging.warning(f"No URLs found in case.")
         except Exception as e:
             logging.info(e)
             return ""
     
+    def ipchecks(self):
+        """
+        Create check for every unique ip in raw data
+        """
+        logging.info("Querying for IPs")
+        ips =  re.findall(IPV4REGEX, self.raw) + re.findall(IPV6REGEX, self.raw)
+        if len(ips) > 0:
+            logging.debug("Create checks for URLs:")
+            for cur_ip in ips:
+                try:
+                    ip = ipaddress.ip_address(cur_ip)
+                    tmpChk = Check(self.caseID, ip.exploded, ["ip"])
+                    self.checkArray.append(tmpChk)   
+                    logging.debug(f"\t{ip.exploded}") 
+                except ValueError:
+                    logging.debug(f'address/netmask is invalid: {cur_ip}')
+    
+    def emailChecks(self):
+        """
+        Create check for every unique email addresses in raw data
+        """
+        try:
+            logging.info("Querying for Email addresses")
+            emails_ad =  re.findall(EMAILREGEX, self.raw)
+            if len(emails_ad) > 0:        
+                logging.debug("Create checks for Email addresses:")
+                for email_ad in self.getUniques(emails_ad):
+                    tmpChk = Check(self.caseID, email_ad, ["email"])
+                    self.checkArray.append(tmpChk)   
+                    logging.debug(f"\t{email_ad}") 
+            else:
+                logging.warning(f"No Email addresses found in case.")
+        except Exception as e:
+            logging.info(e)
+            return ""
+
+    def getUniques(data):
+        unique_data = []
+        for i in data: 
+            # check if exists in unique_list or not 
+            if i not in unique_data: 
+                unique_data.append(i) 
+        return unique_data
+
     def size(self):
         """
         Return the amount of checks in the case
         """
         return len(self.checkArray)
-        
+    
     def createChecks(self):
         """
         Create checks array from raw data, check could be either one url/file/crypto wallet.
         Changing self.checkArray. 
         """
-        logging.info("Creating Checks")
-        unique_urls = []
-        urls = self.getUrls()
-        if len(urls) > 0:        
-                
-            for i in urls: 
-                # check if exists in unique_list or not 
-                if i not in unique_urls: 
-                    unique_urls.append(i) 
-            logging.debug("Create checks for URLs:")
-            
-            for url in unique_urls:
-                tmpChk = Check(self.caseID, url)
-                self.checkArray.append(tmpChk)    
-            logging.debug(f"Checks in case: {self.caseID}:")
-            
-            for chk in self.checkArray:
-                logging.debug(f"\t {chk.raw}")
-        else:
-            logging.warning(f"No URLs found in case.")        
+        logging.info("Creating Checks...")
+        self.urlchecks()
+        self.ipchecks()
+        self.emailChecks()
+        for chk in self.checkArray:
+            logging.debug(f"\t {chk.raw}")
     
     def getDict(self):
         """

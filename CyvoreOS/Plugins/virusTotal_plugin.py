@@ -214,7 +214,7 @@ def virusTotalCheck(url):
 
 def run_check(chk):
     plugin_name = "virusTotal"
-    output = vturlcheck(chk.getUrls(), 'params')
+    output = vturlcheck(chk.raw, 'params')
     chk.add_plugin(plugin_name,output)
         
 def describe():

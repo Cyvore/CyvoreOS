@@ -76,14 +76,21 @@ def urlFromFileCommand(args):
     return testCase
 
 
-def scanstring(testdata):
+def scanstring(testdata, tags=[]):
     testCase = Case(testdata)
     logging.info(f"Check string:\n\t{testdata}")
     logging.info(f"Create case:\n\t{testCase.caseID}")
     for plugin in discovered_plugins:
         for chk in testCase.checkArray:
             current_plugin = importlib.import_module(plugin)
-            current_plugin.run_check(chk)
+            if tags:
+                if any(tag in tags for tag in current_plugin.tags()):
+                    current_plugin.run_check(chk)
+                else:
+                    plugin_name = str(plugin).split(".")[1].removesuffix("_plugin")
+                    logging.info(f"Skip plugin {plugin_name} because of tags mismatch: {current_plugin.tags()}")
+            else:
+                current_plugin.run_check(chk)
     return testCase
 
 def runPlugins(plugins_list, testCase):

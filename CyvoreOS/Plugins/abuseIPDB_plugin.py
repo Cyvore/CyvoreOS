@@ -58,3 +58,4 @@ def describe():
 
 def tags():
     tags_list = ["ip", "domain"]
+    return tags_list

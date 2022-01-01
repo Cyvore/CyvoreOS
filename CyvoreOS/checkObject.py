@@ -37,6 +37,7 @@ class Check:
         self.plugins = []
         self.checkID = self.getID()
         self.caseID = caseID
+        self.tags = []
         self.timestemp = datetime.now().strftime("%m%d%Y%H%M%S")
         
     def getUrls(self):

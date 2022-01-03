@@ -7,3 +7,4 @@ urllib3
 colorama
 future
 re
+urlexpander

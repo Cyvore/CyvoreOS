@@ -187,7 +187,7 @@ class Case:
             logging.info(e)
             return ""
 
-    def getUniques(data):
+    def getUniques(self, data):
         unique_data = []
         for i in data: 
             # check if exists in unique_list or not 

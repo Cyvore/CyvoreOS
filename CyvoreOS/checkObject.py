@@ -128,6 +128,10 @@ class Case:
             urls =  re.findall(URLREGEX, self.raw)
             if len(urls) > 0:        
                 logging.debug("Create checks for URLs:")
+
+                # Casting for getUniques.
+                if type(urls) != list or type(urls) != tuple:
+                    urls = list(urls)
                 for url in self.getUniques(urls):
                     try:
                         if urlexpander.is_short(url):
@@ -169,6 +173,10 @@ class Case:
             emails_ad =  re.findall(EMAILREGEX, self.raw)
             if len(emails_ad) > 0:        
                 logging.debug("Create checks for Email addresses:")
+
+                # Casting for getUniques.
+                if type(emails_ad) != list or type(emails_ad) != tuple:
+                    email_ad = list(emails_ad)
                 for email_ad in self.getUniques(emails_ad):
                     tmpChk = Check(self.caseID, email_ad, ["email"])
                     self.checkArray.append(tmpChk)   

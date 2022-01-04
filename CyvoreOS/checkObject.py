@@ -125,7 +125,7 @@ class Case:
         """
         try:
             logging.info("Querying for URLs")
-            urls =  re.findall(URLREGEX, self.raw)
+            urls = re.findall(URLREGEX, self.raw)
             if len(urls) > 0:        
                 logging.debug("Create checks for URLs:")
 

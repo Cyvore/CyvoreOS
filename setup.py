@@ -17,10 +17,6 @@ setup(
     install_requires=[
         'levenshtein',
         'requests',
-        'favicon',
-        'ImageHash',
-        'Pillow',
-        'urllib3',
         'colorama',
         'future',
         'urlextract',

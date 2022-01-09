@@ -150,7 +150,7 @@ class Case:
                     try:
                         domain = urlparse(url).netloc
                         tmpChk = Check(self.caseID, url,["domain"])
-                        self.checkArray.append(tmpChk, domain, ["domain"]) 
+                        self.checkArray.append(tmpChk)
                     except Exception as e:
                         logging.info(e)
 

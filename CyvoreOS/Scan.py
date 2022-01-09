@@ -1,6 +1,5 @@
 from CyvoreOS.checkObject import Check
 from CyvoreOS.checkObject import Case
-from CyvoreOS.Output.Reporter import MakeCaseReportJson
 import importlib
 from CyvoreOS import Plugins
 #from CyvoreOS import interfaces

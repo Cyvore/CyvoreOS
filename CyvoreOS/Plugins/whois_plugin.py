@@ -17,5 +17,6 @@ def describe():
     return desc
 
 def tags():
+    # Todo: consider adding support for ips
     tags_list = ["domain"]
     return tags_list

@@ -5,3 +5,4 @@ colorama
 future
 re
 urlexpander
+python-whois

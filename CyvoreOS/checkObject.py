@@ -5,10 +5,16 @@ import re
 import ipaddress
 import urlexpander
 
-IPV4REGEX = r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b"
-IPV6REGEX = r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))"
-URLREGEX = r"(?i)(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})"
-EMAILREGEX = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"4e
+IPV4REGEX  = r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b"
+IPV6REGEX  = r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))"
+URLREGEX   = r"(?i)(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})"
+EMAILREGEX = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
+BTCREG     = r"(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}"
+DASHREG    = r"X[1-9A-HJ-NP-Za-km-z]{33}"
+LTCREG     = r"[LM3][a-km-zA-HJ-NP-Z1-9]{26,33}"
+DOGEREG    = r"D{1}[5-9A-HJ-NP-U]{1}[1-9A-HJ-NP-Za-km-z]{32}"
+COINS      = [BTCREG, DASHREG, LTCREG, DOGEREG]
+
 class Plugin:
     """
     Plugin is part of check type which holds all plugins output for a check 
@@ -118,7 +124,7 @@ class Case:
         id = "%s-%s"%(timeStamp, hostPart)
         return id
     
-    def urlchecks(self):
+    def urlChecks(self):
         """
         Create check for every unique urls in raw data
         """
@@ -146,7 +152,7 @@ class Case:
             logging.info(e)
             return ""
     
-    def ipchecks(self):
+    def ipChecks(self):
         """
         Create check for every unique ip in raw data
         """
@@ -186,6 +192,27 @@ class Case:
             logging.info(e)
             return ""
 
+    def walletsCheck(self):
+        """
+        Create check for every unique crypto addresses in raw data
+        """
+        try:
+            logging.info("Querying for crypto addresses")
+            wallat_ad = []
+            for coin in COINS:
+                wallat_ad = wallat_ad + re.findall(coin, self.raw)
+            if len(wallat_ad) > 0:        
+                logging.debug("Create checks for crypto addresses:")
+                for email_ad in self.getUniques(wallat_ad):
+                    tmpChk = Check(self.caseID, wallat_ad, ["crypto"])
+                    self.checkArray.append(tmpChk)   
+                    logging.debug(f"\t{wallat_ad}") 
+            else:
+                logging.warning(f"No Crypto addresses found in case.")
+        except Exception as e:
+            logging.info(e)
+            return ""
+
     def getUniques(self, data):
         unique_data = []
         for i in data: 
@@ -216,6 +243,10 @@ class Case:
             logging.warning(e)
         try:
             self.emailChecks()
+        except Exception as e:
+            logging.warning(e)
+        try:
+            self.walletsCheck()
         except Exception as e:
             logging.warning(e)
         for chk in self.checkArray:

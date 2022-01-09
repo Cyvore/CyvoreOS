@@ -4,6 +4,7 @@ import logging
 import re
 import ipaddress
 import urlexpander
+from urllib.parse import urlparse
 
 IPV4REGEX  = r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b"
 IPV6REGEX  = r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))"
@@ -124,15 +125,15 @@ class Case:
         id = "%s-%s"%(timeStamp, hostPart)
         return id
     
-    def urlChecks(self):
+    def urlAndDomainChecks(self):
         """
-        Create check for every unique urls in raw data
+        Create check for every unique urls and domain in raw data
         """
         try:
             logging.info("Querying for URLs")
             urls = re.findall(URLREGEX, self.raw)
             if len(urls) > 0:        
-                logging.debug("Create checks for URLs:")
+                logging.debug("Create checks for URLs and Domains:")
 
                 # Casting for getUniques.
                 if type(urls) != list or type(urls) != tuple:
@@ -146,6 +147,13 @@ class Case:
                     tmpChk = Check(self.caseID, url,["url"])
                     self.checkArray.append(tmpChk)   
                     logging.debug(f"\t{url}") 
+                    try:
+                        domain = urlparse(url).netloc
+                        tmpChk = Check(self.caseID, url,["domain"])
+                        self.checkArray.append(tmpChk, domain, ["domain"]) 
+                    except Exception as e:
+                        logging.info(e)
+
             else:
                 logging.warning(f"No URLs found in case.")
         except Exception as e:
@@ -234,7 +242,7 @@ class Case:
         """
         logging.info("Creating Checks...")
         try:
-            self.urlchecks()
+            self.urlAndDomainChecks()
         except Exception as e:
             logging.warning(e)
         try:

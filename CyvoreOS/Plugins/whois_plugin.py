@@ -17,5 +17,5 @@ def describe():
     return desc
 
 def tags():
-    tags_list = ["domain", "ip"]
+    tags_list = ["domain"]
     return tags_list

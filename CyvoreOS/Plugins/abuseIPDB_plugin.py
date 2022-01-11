@@ -3,7 +3,6 @@ import socket
 import sys
 import urllib3
 import json
-from CyvoreOS.Output import PrettyPrint
 import logging
 import os
 
@@ -40,7 +39,6 @@ def checkUrl(url):
         status = str(r.status_code)
     except requests.exceptions.ConnectionError:
         status = "DOWN"
-    PrettyPrint.printStatus(url, status)
     if status == '200':
         return True
     return False

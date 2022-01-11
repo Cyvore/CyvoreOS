@@ -6,9 +6,15 @@ import ipaddress
 import urlexpander
 from urllib.parse import urlparse
 
+# MIME libraries
+from eml_parser import eml_parser
+import magic
+import extract_msg
+
 IPV4REGEX  = r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b"
 IPV6REGEX  = r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))"
-URLREGEX   = r"(?i)(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})"
+URLREGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+# URLREGEX   = r"(?i)(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})"
 EMAILREGEX = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
 BTCREG     = r"(?:bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}"
 DASHREG    = r"X[1-9A-HJ-NP-Za-km-z]{33}"
@@ -22,7 +28,7 @@ class Plugin:
     """
     def __init__(self, checkID, pluginName, raw, output):
         self.checkID = checkID
-        self.plugingName = pluginName
+        self.pluginName = pluginName
         self.raw = raw
         self.output = output
         self.timestamp = datetime.now().strftime("%m%d%Y%H%M%S")
@@ -31,7 +37,7 @@ class Plugin:
         """
         Convert plugin object into dictionary
         """
-        plugin_dict = {"checkID" : self.checkID, "plugingName": self.plugingName, "raw" : self.raw,"output": self.output, "timestamp" : self.timestamp}
+        plugin_dict = {"checkID" : self.checkID, "pluginName": self.pluginName, "raw" : self.raw,"output": self.output, "timestamp" : self.timestamp}
         return plugin_dict
       
 class Check:
@@ -134,11 +140,11 @@ class Case:
             urls = re.findall(URLREGEX, self.raw)
             if len(urls) > 0:        
                 logging.debug("Create checks for URLs and Domains:")
-
+                urls = [url[0] for url in urls]
                 # Casting for getUniques.
                 if type(urls) != list or type(urls) != tuple:
                     urls = list(urls)
-                for url in self.getUniques(urls):
+                for url in self.getUniquesUrls(urls):
                     try:
                         if urlexpander.is_short(url):
                             url = urlexpander.expand(url)
@@ -148,8 +154,8 @@ class Case:
                     self.checkArray.append(tmpChk)   
                     logging.debug(f"\t{url}") 
                     try:
-                        domain = urlparse(url).netloc
-                        tmpChk = Check(self.caseID, url,["domain"])
+                        domain = urlparse(url).netloc.strip('www.')
+                        tmpChk = Check(self.caseID, domain,["domain"])
                         self.checkArray.append(tmpChk)
                     except Exception as e:
                         logging.info(e)
@@ -227,19 +233,66 @@ class Case:
             if i not in unique_data: 
                 unique_data.append(i) 
         return unique_data
-
+   
+    def getUniquesUrls(self, data):
+        unique_data = []
+        option1, option2 = '', ''
+        for i in data: 
+            if not re.match(r"https?://", i):
+                option1 = 'https://' + i
+                option2 = 'http://' + i
+            # check if exists in unique_list or not 
+            if i not in unique_data and option1 not in unique_data and option2 not in unique_data: 
+                unique_data.append(i) 
+        return unique_data
     def size(self):
         """
         Return the amount of checks in the case
         """
         return len(self.checkArray)
-    
+    def emailFileCheck(self):
+        try:
+            mimetype = magic.from_buffer(self.raw, mime=True)
+            parsedMime = {}
+            
+            # gmail- eml
+            if re.search('message', mimetype) != None:
+                ep = eml_parser.EmlParser(include_raw_body=True, include_attachment_data=True)
+                parsedMime = ep.decode_email_bytes(self.raw)
+                tmpChk = Check(self.caseID, parsedMime, ["mail"])
+                self.checkArray.append(tmpChk) 
+                # parsedMime = str(parsedMime.get('attachment') or '')
+                parsedMime = str(parsedMime['body']) + str(parsedMime['header']['header'].get('reply-to') or [])
+            # outlook- msg
+            elif re.search('vnd.ms-outlook', mimetype) != None:
+                tmpChk = Check(self.caseID, parsedMime, ["mail"])
+                self.checkArray.append(tmpChk)
+                parsedMime = extract_msg.openMsg(self.raw)
+                # parsedMime = str(parsedMime.attachments)
+                parsedMime = str(parsedMime.inReplyTo) + str(parsedMime.body)
+            else:
+                return "Received a file that is not .eml or .msg"
+
+            
+            self.raw = parsedMime
+
+        except Exception as e:
+            print(e)
+            logging.info(e)
+            return ""
+
     def createChecks(self):
         """
         Create checks array from raw data, check could be either one url/file/crypto wallet.
         Changing self.checkArray. 
         """
+
+        # First create check MUST be emailFileCheck
         logging.info("Creating Checks...")
+        try:
+            self.emailFileCheck()
+        except Exception as e:
+            logging.warning(e)
         try:
             self.urlAndDomainChecks()
         except Exception as e:
@@ -267,3 +320,25 @@ class Case:
         for chk in self.checkArray:
             case_dict["checks"].append(chk.getDict())
         return case_dict
+
+from pathlib import Path
+import sys
+import pprint
+path_root = Path(__file__).parents[2]
+sys.path.append(str(path_root))
+
+root = logging.getLogger()
+root.setLevel(logging.DEBUG)
+
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+root.addHandler(handler)
+
+print("start Case:")
+with open(r"C:\Users\97254\source\repos\Cyvore\mimePlugin\Yiftach.eml", "rb") as fd:
+    data = fd.read()
+    cases = Case(data)
+    pprint.pprint(cases.getDict())
+    print("Size:",cases.size())

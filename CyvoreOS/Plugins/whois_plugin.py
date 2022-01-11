@@ -4,6 +4,7 @@ import logging
 def whois_plugin(data):
     try:
         hostDict = whois.whois(data)
+        return hostDict
     except Exception as e:
         logging.warning(e)
 

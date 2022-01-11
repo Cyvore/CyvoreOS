@@ -301,10 +301,10 @@ class Case:
 
         # First create check MUST be emailFileCheck
         logging.info("Creating Checks...")
-        try:
-            self.emailFileCheck()
-        except Exception as e:
-            logging.warning(e)
+        # try:
+        #     self.emailFileCheck()
+        # except Exception as e:
+        #     logging.warning(e)
         try:
             self.urlAndDomainChecks()
         except Exception as e:

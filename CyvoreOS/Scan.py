@@ -86,7 +86,7 @@ def scanstring(testdata, tags=False):
                 if any(tag in chk.tags for tag in current_plugin.tags()):
                     current_plugin.run_check(chk)
                 else:
-                    plugin_name = str(plugin).split(".")[1].removesuffix("_plugin")
+                    plugin_name = str(plugin).split(".")[-1].strip("_plugin")
                     logging.info(f"Skip plugin {plugin_name} because of tags mismatch: {current_plugin.tags()}")
             else:
                 current_plugin.run_check(chk)
@@ -96,11 +96,11 @@ def runPlugins(testdata, plugins_list):
     testCase = Case(testdata)
     for plugin in discovered_plugins:
         if plugins_list:
-            plugin_name = str(plugin).split(".")[1].removesuffix("_plugin")
+            plugin_name = str(plugin).split(".")[1].strip("_plugin")
             if plugin_name not in plugins_list:
                 logging.info(f"Skipping {plugin_name} - plugin flag is on.")
                 continue
-        elif "debug" in str(plugin).split(".")[1].removesuffix("_plugin") :
+        elif "debug" in str(plugin).split(".")[1].strip("_plugin"):
             continue
         logging.debug(f"Running plugin: {str(plugin)}")
         for chk in testCase.checkArray:

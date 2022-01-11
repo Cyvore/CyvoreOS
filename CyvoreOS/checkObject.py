@@ -8,7 +8,6 @@ from urllib.parse import urlparse
 
 # MIME libraries
 from eml_parser import eml_parser
-import magic
 import extract_msg
 
 IPV4REGEX  = r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b"
@@ -250,20 +249,35 @@ class Case:
         """
         return len(self.checkArray)
     def emailFileCheck(self):
+        magicNumbers = { 'eml': [bytes([0x44, 0x65, 0x6c, 0x69, 0x76, 0x65, 0x72, 0x65, 0x64]),
+                                  bytes([0x52, 0x65, 0x74, 0x75, 0x72, 0x6e, 0x2d, 0x50]),
+                                  bytes([0x46, 0x72, 0x6f, 0x6d]),
+                                  bytes([0x58, 0x2d]),
+                                  bytes([0x23, 0x21, 0x20, 0x72, 0x6e, 0x65, 0x77, 0x73]),
+                                  bytes([0x46, 0x6f, 0x72, 0x77, 0x61, 0x72, 0x64, 0x20, 0x74, 0x6f]),
+                                  bytes([0x46, 0x72, 0x6f, 0x6d, 0x3a]),
+                                  bytes([0x4e, 0x23, 0x21, 0x20, 0x72, 0x6e, 0x65, 0x77, 0x73]),
+                                  bytes([0x50, 0x69, 0x70, 0x65, 0x20, 0x74, 0x6f]),
+                                  bytes([0x52, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x64, 0x3a]),
+                                  bytes([0x52, 0x65, 0x6c, 0x61, 0x79, 0x2d, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x3a]),
+                                  bytes([0x52, 0x65, 0x74, 0x75, 0x72, 0x6e, 0x2d, 0x50, 0x61, 0x74, 0x68, 0x3a]),
+                                  bytes([0x52, 0x65, 0x74, 0x75, 0x72, 0x6e, 0x2d, 0x70, 0x61, 0x74, 0x68, 0x3a]),
+                                  bytes([0x53, 0x75, 0x62, 0x6a, 0x65, 0x63, 0x74, 0x3a, 0x20])], 
+                          'msg': bytes([0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1]) }
         try:
-            mimetype = magic.from_buffer(self.raw, mime=True)
             parsedMime = {}
             
             # gmail- eml
-            if re.search('message', mimetype) != None:
+            if any (self.raw.startswith(magicNumber) for magicNumber in magicNumbers['eml']):
                 ep = eml_parser.EmlParser(include_raw_body=True, include_attachment_data=True)
                 parsedMime = ep.decode_email_bytes(self.raw)
                 tmpChk = Check(self.caseID, parsedMime, ["mail"])
                 self.checkArray.append(tmpChk) 
                 # parsedMime = str(parsedMime.get('attachment') or '')
                 parsedMime = str(parsedMime['body']) + str(parsedMime['header']['header'].get('reply-to') or [])
+                
             # outlook- msg
-            elif re.search('vnd.ms-outlook', mimetype) != None:
+            elif self.raw.startswith(magicNumbers['msg']):
                 tmpChk = Check(self.caseID, parsedMime, ["mail"])
                 self.checkArray.append(tmpChk)
                 parsedMime = extract_msg.openMsg(self.raw)

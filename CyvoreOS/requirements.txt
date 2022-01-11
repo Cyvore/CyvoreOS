@@ -6,3 +6,6 @@ future
 re
 urlexpander
 python-whois
+eml_parser
+magic
+extract_msg

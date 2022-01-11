@@ -333,26 +333,3 @@ class Case:
         for chk in self.checkArray:
             case_dict["checks"].append(chk.getDict())
         return case_dict
-
-
-# from pathlib import Path
-# import sys
-# import pprint
-# path_root = Path(__file__).parents[2]
-# sys.path.append(str(path_root))
-
-# root = logging.getLogger()
-# root.setLevel(logging.DEBUG)
-
-# handler = logging.StreamHandler(sys.stdout)
-# handler.setLevel(logging.DEBUG)
-# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-# handler.setFormatter(formatter)
-# root.addHandler(handler)
-
-# print("start Case:")
-# with open(r"C:\Users\97254\source\repos\Cyvore\mimePlugin\test 2 .msg", "rb") as fd:
-#     data = fd.read()
-#     cases = Case(data)
-#     pprint.pprint(cases.getDict())
-#     print("Size:",cases.size())

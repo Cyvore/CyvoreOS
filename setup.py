@@ -6,13 +6,13 @@ FOLDERNAME = "CyvoreOS"
 setup(
     name='CyvoreOS',
     packages=['CyvoreOS', os.path.join(FOLDERNAME, "Plugins"), os.path.join(FOLDERNAME, "Output"), os.path.join(FOLDERNAME, "interfaces")],
-    version='0.1.7.4.1',
+    version='0.1.7.4.2',
     license='MIT',  #https://help.github.com/articles/licensing-a-repository
     description='Next-Gen email threat prevention',
     author='Cyvore',
     author_email='info@cyvore.com',
     url='https://github.com/user/reponame',  # Our website Link
-    download_url='https://github.com/barakinio/CyvoreOS/archive/refs/tags/v_0.1.7.4.1.tar.gz',
+    download_url='https://github.com/barakinio/CyvoreOS/archive/refs/tags/v_0.1.7.4.2.tar.gz',
     keywords=['Anti-Phishing', 'Email-Scanner', 'Optical-Recognition'],
     install_requires=[
         'levenshtein',
@@ -21,7 +21,11 @@ setup(
         'future',
         'urlextract',
         'blockcypher',
-        'urlexpander'
+        'urlexpander',
+        'python-whois',
+        'eml_parser',
+        'python-magic',
+        'extract_msg'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

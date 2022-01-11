@@ -5,10 +5,9 @@ import re
 import ipaddress
 import urlexpander
 from urllib.parse import urlparse
-import puremagic
+
 # MIME libraries
 from eml_parser import eml_parser
-import magic
 import extract_msg
 
 IPV4REGEX  = r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b"

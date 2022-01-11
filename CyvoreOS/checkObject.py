@@ -290,7 +290,6 @@ class Case:
             self.raw = parsedMime
 
         except Exception as e:
-            print(e)
             logging.info(e)
             return ""
 

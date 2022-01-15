@@ -20,6 +20,7 @@ def whois_plugin(data):
                 if hostDict['domain_name'] in url:
                     hostDict['verified'] = True
                     break
+            urls.close()
         
         return hostDict
     except Exception as e:

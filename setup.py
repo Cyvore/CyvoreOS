@@ -1,11 +1,13 @@
 from distutils.core import setup
+from setuptools import find_packages
 import os
 
 FOLDERNAME = "CyvoreOS"
 
 setup(
     name='CyvoreOS',
-    packages=['CyvoreOS', os.path.join(FOLDERNAME, "Plugins"), os.path.join(FOLDERNAME, "Output"), os.path.join(FOLDERNAME, "interfaces"), os.path.join(FOLDERNAME, "Resources")],
+    #packages=['CyvoreOS', os.path.join(FOLDERNAME, "Plugins"), os.path.join(FOLDERNAME, "Output"), os.path.join(FOLDERNAME, "interfaces"), os.path.join(FOLDERNAME, "Resources")],
+    packages=find_packages(),
     version='0.1.7.4.6',
     license='MIT',  #https://help.github.com/articles/licensing-a-repository
     description='Next-Gen email threat prevention',

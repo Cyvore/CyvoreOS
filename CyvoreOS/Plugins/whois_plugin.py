@@ -15,7 +15,7 @@ def whois_plugin(data):
         hostDict.update({ 'verified': False })
 
         # search for domain in 500DB
-        with open ('CyvoreOS/Resources/top500urls.txt', 'r') as urls:
+        with open("../Resources/top500urls.txt", 'r') as urls:
             for url in urls:
                 if hostDict['domain_name'] in url:
                     hostDict['verified'] = True
@@ -39,3 +39,6 @@ def tags():
     # Todo: consider adding support for ips
     tags_list = ["domain"]
     return tags_list
+
+if __name__ == "__main__":
+    print(whois_plugin(r"walla.com"))

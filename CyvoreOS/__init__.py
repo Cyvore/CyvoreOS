@@ -4,3 +4,4 @@ from CyvoreOS.Plugins.abuseIPDB_plugin import run_check
 #from CyvoreOS.Utils import CheckImpersonation
 from CyvoreOS import checkObject
 from CyvoreOS.Scan import listplugins, scanstring
+import CyvoreOS.Resources

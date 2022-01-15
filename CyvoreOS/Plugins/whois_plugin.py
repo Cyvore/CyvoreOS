@@ -4,6 +4,22 @@ import logging
 def whois_plugin(data):
     try:
         hostDict = whois.whois(data)
+
+        # change domain list from list to string
+        if isinstance(hostDict.get('domain_name'), list):
+            hostDict['domain_name'] = hostDict['domain_name'][0].lower()
+
+        # add verified field
+        hostDict.update({ 'verified': False })
+
+        # search for domain in 500DB
+        with open ('CyvoreOS/Resources/top500urls.txt', 'r') as urls:
+            for url in urls:
+                if hostDict['domain_name'] in url:
+                    hostDict['verified'] = True
+                    break
+            urls.close()
+        
         return hostDict
     except Exception as e:
         logging.warning(e)

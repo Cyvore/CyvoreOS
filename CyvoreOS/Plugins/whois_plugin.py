@@ -19,6 +19,7 @@ def whois_plugin(data):
                     hostDict['verified'] = True
                     break
         
+        urls.close()
         return hostDict
     except Exception as e:
         logging.warning(e)

@@ -1,10 +1,12 @@
+from typing import Dict
 import whois
 import logging
+import pprint
 
 def whois_plugin(data):
     try:
         hostDict = whois.whois(data)
-
+        hostDict = dict(hostDict)
         # change domain list from list to string
         if isinstance(hostDict.get('domain_name'), list):
             hostDict['domain_name'] = hostDict['domain_name'][0].lower()

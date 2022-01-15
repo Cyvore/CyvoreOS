@@ -25,7 +25,8 @@ setup(
         'python-whois',
         'eml_parser',
         'python-magic',
-        'extract_msg'
+        'extract_msg',
+        "vt"
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

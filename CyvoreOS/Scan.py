@@ -148,6 +148,7 @@ def urlAndDomainChecks(case):
                 # Add url check to case
                 case.checkArray.append(Check(case.caseID, case.raw, ["url"]))
         except Exception as e:
+            logging.info(f"Error with urlexpander.expand('{case.raw}')")
             logging.info(e)
 
         try:
@@ -160,6 +161,7 @@ def urlAndDomainChecks(case):
             # Add domain check to case
             case.checkArray.append(Check(case.caseID, domain, ["domain"]))
         except Exception as e:
+            logging.info(f"error with urlparse('{case.raw}').netloc")
             logging.info(e)
         return True
     else:
@@ -192,8 +194,12 @@ def scanUrl(url, tags=False):
     testCase = Case(url.strip(), empty=True)
     logging.info(f"Check Url:\n\t{url}")
     logging.info(f"Create case:\n\t{testCase.caseID}")
-    if not urlAndDomainChecks(testCase) or not ipChecks(testCase):
-        return ""
+    if not urlAndDomainChecks(testCase):
+        logging.info("Not found url or domain, checking for IPs")
+        if not ipChecks(testCase):
+            logging.info("Not found any IPs, return empty case.")
+            return testCase
+        
     for plugin in discovered_plugins:
         for chk in testCase.checkArray:
             current_plugin = importlib.import_module(plugin)

@@ -47,8 +47,8 @@ def exitWithLog(msg):
     if msg:
         logging.warning(msg)
     else:
-        print("Program finished successfully")
-    print("-----------------------------------------------------\n\n\n")
+        logging.info("Program finished successfully")
+    logging.info("-----------------------------------------------------\n\n\n")
     exit()
 
 
@@ -67,22 +67,22 @@ def strings(filename, min=4):
 
 
 def listplugins():
-    print("Running ls option")
+    logging.info("Running ls option")
     for plugin in discovered_plugins:
         current_plugin = importlib.import_module(plugin)
         output = current_plugin.describe()
-        print("\t" + plugin, "-", output)
+        logging.info("\t" + plugin, "-", output)
     exitWithLog("")
 
 
 """
 # Only for windows developers 
 def install():
-    print("Running install option")
+    logging.info("Running install option")
     path = "\"C:\\Python39\\python.exe\" \"" + __file__ + "\" -uf \"%1\""
     logging.debug(f"Path in registry:\t{path}")
     # interfaces.right_click_install.define_action_on("*", "CheckForPhish", path, title="Run Phish Check")
-    print("Installed right click addon")
+    logging.info("Installed right click addon")
     exitWithLog("")
 """
 
@@ -136,18 +136,29 @@ def urlAndDomainChecks(case):
     logging.info(f"Checking Url: {case.raw}")
     if re.match(URLREGEX, case.raw):
         try:
-            logging.debug("Check if url is shortend")
+            logging.info(f"Check if {case.raw} is shortend")
             if urlexpander.is_short(case.raw):
                 url = urlexpander.expand(case.raw)
+                logging.info(f"{case.raw} is shortend, got - {url}")
+
+                # Add destination url check to case
+                case.checkArray.append(Check(case.caseID, url, ["url"]))
+            else:
+
+                # Add url check to case
+                case.checkArray.append(Check(case.caseID, case.raw, ["url"]))
         except Exception as e:
             logging.info(e)
-        # Add url check to case
-        case.checkArray.append(Check(case.caseID, case.raw,["url"]))
+
         try:
+            logging.info(f"Check for {case.raw} domain")
             domain = urlparse(case.raw).netloc
             if domain.startswith("www."):
                 domain = domain[4::]
-            case.checkArray.append(Check(case.caseID, domain,["domain"]))
+            logging.info(f"in {case.raw} found domain {domain}")
+
+            # Add domain check to case
+            case.checkArray.append(Check(case.caseID, domain, ["domain"]))
         except Exception as e:
             logging.info(e)
         return True

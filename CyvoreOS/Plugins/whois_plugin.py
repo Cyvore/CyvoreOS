@@ -1,7 +1,6 @@
-from typing import Dict
 import whois
 import logging
-import pprint
+import requests
 
 def whois_plugin(data):
     try:
@@ -15,13 +14,12 @@ def whois_plugin(data):
         hostDict.update({ 'verified': False })
 
         # search for domain in 500DB
-        with open("../Resources/top500urls.txt", 'r') as urls:
-            for url in urls:
-                if hostDict['domain_name'] in url:
-                    hostDict['verified'] = True
-                    break
-            urls.close()
-        
+        urlManifest = requests.get('https://raw.githubusercontent.com/Cyvore/IconDB/master/Resources/top500urls.txt').text.split('\n')
+        for url in urlManifest:
+            if hostDict['domain_name'] in url:
+                hostDict['verified'] = True
+                break
+
         return hostDict
     except Exception as e:
         logging.warning(e)
@@ -39,6 +37,3 @@ def tags():
     # Todo: consider adding support for ips
     tags_list = ["domain"]
     return tags_list
-
-if __name__ == "__main__":
-    print(whois_plugin(r"walla.com"))

@@ -1,20 +1,21 @@
-from distutils.core import setup
-from setuptools import find_packages
+from setuptools import setup, find_packages
 import os
 
 FOLDERNAME = "CyvoreOS"
 
 setup(
     name='CyvoreOS',
-    #packages=['CyvoreOS', os.path.join(FOLDERNAME, "Plugins"), os.path.join(FOLDERNAME, "Output"), os.path.join(FOLDERNAME, "interfaces"), os.path.join(FOLDERNAME, "Resources")],
+    #packages=['CyvoreOS', os.path.join(FOLDERNAME, "Plugins"), os.path.join(FOLDERNAME, "Output"), os.path.join(FOLDERNAME, "interfaces")],
     packages=find_packages(),
-    version='0.1.7.4.6',
+    package_data={"": [os.path.join(FOLDERNAME, "Resources", "top500urls.txt")]},
+    include_package_data=True,
+    version='0.1.7.5.1',
     license='MIT',  #https://help.github.com/articles/licensing-a-repository
     description='Next-Gen email threat prevention',
     author='Cyvore',
     author_email='info@cyvore.com',
-    url='https://github.com/user/reponame',  # Our website Link
-    download_url='https://github.com/barakinio/CyvoreOS/archive/refs/tags/v_0.1.7.4.6.tar.gz',
+    url='https://cyvore.com',  # Our website Link
+    download_url='https://github.com/barakinio/CyvoreOS/archive/refs/tags/v_0.1.7.5.tar.gz',
     keywords=['Anti-Phishing', 'Email-Scanner', 'Optical-Recognition'],
     install_requires=[
         'levenshtein',
@@ -28,7 +29,7 @@ setup(
         'eml_parser',
         'python-magic',
         'extract_msg',
-        "vt"
+        "vt-py"
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

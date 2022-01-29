@@ -8,3 +8,4 @@ urlexpander
 python-whois
 eml_parser
 extract_msg
+vt-py

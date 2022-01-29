@@ -4,6 +4,7 @@ from datetime import datetime
 from datetime import timedelta
 from blockcypher import get_address_overview
 from blockcypher import get_address_details
+from requests.exceptions import ReadTimeout
 
 # Coin options: bitcoin, litecoin, dogecoin, dashcoin
 coins = ['btc', 'ltc', 'doge', 'dash']  
@@ -11,7 +12,7 @@ coins = ['btc', 'ltc', 'doge', 'dash']
 # Consts
 amountToCheck = 30
 suspiciousAmount = amountToCheck / 2
-suspiciousRange = 20000 
+suspiciousRange = 0 
 # Needs to be tuned, If increased, more wallets would fall under the definition of suspicious transaction error
 
 class BlackListError(Exception):
@@ -62,6 +63,13 @@ class transactionArray:
     
     def sort(self):
         self.arr.sort()
+    
+    def setSuspiciousRange(self):
+        """ tune the suspicious range to be appopriate to the wallet owner"""
+        """ calculating the median, if checks that length is odd"""
+        global suspiciousRange
+        n = len(self.arr) - 1
+        suspiciousRange = abs(self.arr[n//2].balance - self.arr[n//2 + 1].balance) // 10 if n > 1 else 0
     
     def transfer(self, index):
         """ a transfer amount is defined as difference of balance before transfer and balance after transfer"""
@@ -154,7 +162,11 @@ def blacklistValid(wallet) -> bool:
     payload={}
     headers = {}
 
-    response = requests.request("GET", URLBLACKLIST, headers=headers, data=payload, timeout=15) # stuck if VPN is active
+    try:
+        response = requests.get(URLBLACKLIST, headers=headers, data=payload, timeout=30) # stuck if VPN is active
+    except Exception as e:
+        if isinstance(e, ReadTimeout):
+            return True
 
     info = json.loads(response.content.decode("utf-8"))
     
@@ -178,6 +190,7 @@ def transactionsValid(wallet):
 
     [db.add(transaction(tx['confirmed'], tx['ref_balance'])) for tx in transac]
     db.sort()
+    db.setSuspiciousRange()
     db.suspiciousActivityByAmount()
     db.suspiciousActivityByDate()
 
@@ -195,7 +208,7 @@ def walletVerification(wallet):
     for coin in coins:
         try:
             assert get_address_overview(wallet, coin)
-            assert blacklistValid(wallet)
+            # assert blacklistValid(wallet)
             assert transactionsValid(wallet)
 
         except BlackListError:
@@ -223,3 +236,6 @@ def describe():
 def tags():
     tags_list = ["crypto"]
     return tags_list
+
+if __name__ == "__main__":
+    walletVerification('3FupZp77ySr7jwoLYEJ9mwzJpvoNBXsBnE')

@@ -208,7 +208,7 @@ def walletVerification(wallet):
     for coin in coins:
         try:
             assert get_address_overview(wallet, coin)
-            # assert blacklistValid(wallet)
+            assert blacklistValid(wallet)
             assert transactionsValid(wallet)
 
         except BlackListError:

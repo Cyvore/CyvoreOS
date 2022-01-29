@@ -32,8 +32,8 @@ def exitWithLog(msg):
     if msg:
         logging.warning(msg)
     else:
-        logging.info("Program finished successfully")
-    logging.info("-----------------------------------------------------\n\n\n")
+        print("Program finished successfully")
+    print("-----------------------------------------------------\n\n\n")
     exit()
 
 def strings(filename, min=4):
@@ -50,21 +50,21 @@ def strings(filename, min=4):
             yield result
 
 def listplugins():
-    logging.info("Running ls option")
+    print("Running ls option")
     for plugin in discovered_plugins:
         current_plugin = importlib.import_module(plugin)
         output = current_plugin.describe()
-        logging.info("\t" + plugin, "-", output)
+        print("\t" + plugin, "-", output)
     exitWithLog("")
  
 """
 # Only for windows developers 
 def install():
-    logging.info("Running install option")
+    print("Running install option")
     path = "\"C:\\Python39\\python.exe\" \"" + __file__ + "\" -uf \"%1\""
     logging.debug(f"Path in registry:\t{path}")
     # interfaces.right_click_install.define_action_on("*", "CheckForPhish", path, title="Run Phish Check")
-    logging.info("Installed right click addon")
+    print("Installed right click addon")
     exitWithLog("")
 """
 

@@ -236,6 +236,3 @@ def describe():
 def tags():
     tags_list = ["crypto"]
     return tags_list
-
-if __name__ == "__main__":
-    walletVerification('3FupZp77ySr7jwoLYEJ9mwzJpvoNBXsBnE')

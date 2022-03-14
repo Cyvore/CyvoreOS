@@ -112,8 +112,12 @@ def scanstring(testdata, tags=False):
     return testCase
 
 
-def runPlugins(testdata, plugins_list):
-    testCase = Case(testdata)
+def runPlugins(testdata, plugins_list, case_exist=False):
+    testCase = ''
+    if case_exist:
+        testCase = Case(testdata)
+    else:
+        testCase = testdata
     for plugin in discovered_plugins:
         if plugins_list:
             plugin_name = str(plugin).split(".")[1].strip("_plugin")
@@ -127,6 +131,7 @@ def runPlugins(testdata, plugins_list):
             
             current_plugin = importlib.import_module(plugin)
             current_plugin.run_check(chk)
+    return testCase
 
 
 def urlAndDomainChecks(case):

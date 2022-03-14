@@ -129,6 +129,22 @@ def runPlugins(testdata, plugins_list):
             current_plugin.run_check(chk)
 
 
+def run_plugins_for_existing_case(case, tags=[]):
+    logging.info(f"Working on existing case:\n\t{case.caseID}")
+    for plugin in discovered_plugins:
+        for chk in case.checkArray:
+            current_plugin = importlib.import_module(plugin)
+            if tags:
+                if any(tag in chk.tags for tag in current_plugin.tags()):
+                    current_plugin.run_check(chk)
+                else:
+                    plugin_name = str(plugin).split(".")[-1].strip("_plugin")
+                    logging.info(f"Skip plugin {plugin_name} because of tags mismatch: {current_plugin.tags()}")
+            else:
+                current_plugin.run_check(chk)
+    return case
+
+
 def urlAndDomainChecks(case):
     """
     Create check for every unique urls and domain in raw data

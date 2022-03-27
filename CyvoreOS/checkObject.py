@@ -40,7 +40,7 @@ class Plugin:
       
 class Check:
     """
-    Check is an object to test against nrw plugins.
+    Check is an object to test against new plugins.
     When check is made as part of a Case object it will hold one value, url/file/crypto wallet.
     When check is self made it could hold all types of data in raw. 
     """

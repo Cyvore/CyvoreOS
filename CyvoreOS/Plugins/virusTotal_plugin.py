@@ -23,7 +23,7 @@ def virusTotalCheck(url):
     return ""
 
 def run_check(chk):
-    plugin_name = "virusTotalV3"
+    plugin_name = "VirusTotal"
     output = virusTotalCheck(chk.raw)
     chk.add_plugin(plugin_name,output)
         

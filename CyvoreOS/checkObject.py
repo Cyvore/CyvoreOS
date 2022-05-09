@@ -110,9 +110,9 @@ class Case:
     Case is an object to investigate multiple leads from the same source. 
     checkArray will hold every lead and will only repersent one value - url/file/crypto wallet.
     """  
-    def __init__(self, raw, empty=False):
+    def __init__(self, raw, empty=False, customID=None):
         logging.info("Initializing Case")
-        self.caseID = self.getCaseID()
+        self.caseID = customID or self.getCaseID()
         self.checkArray = []
         self.raw = raw
         if not empty:
@@ -129,7 +129,7 @@ class Case:
         hostPart = socket.gethostname()
         id = "%s-%s"%(timeStamp, hostPart)
         return id
-    
+
     def urlAndDomainChecks(self):
         """
         Create check for every unique urls and domain in raw data

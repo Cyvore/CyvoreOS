@@ -44,13 +44,13 @@ class Check:
     When check is made as part of a Case object it will hold one value, url/file/crypto wallet.
     When check is self made it could hold all types of data in raw. 
     """
-    def __init__(self, caseID, raw, tag=[]):
+    def __init__(self, id, raw, tag=[]):
         self.raw = raw
         self.reputation = 0
         self.hash = ""
         self.plugins = []
         self.checkID = self.getID()
-        self.caseID = caseID
+        self.id = id
         self.tags = []
         if tag and type(tag) == list:
             self.tags = tag
@@ -112,15 +112,15 @@ class Case:
     """  
     def __init__(self, raw, empty=False, customID=None):
         logging.info("Initializing Case")
-        self.caseID = customID or self.getCaseID()
+        self.id = customID or self.getid()
         self.checkArray = []
         self.raw = raw
         if not empty:
             self.createChecks()
         self.timestemp = datetime.now().strftime("%m%d%Y%H%M%S")
-        logging.debug(f"Created case {self.caseID} with {self.size()} checks")
+        logging.debug(f"Created case {self.id} with {self.size()} checks")
         
-    def getCaseID(self):
+    def getid(self):
         """
         Create case ID from current time and host name, may changed TBD
         """
@@ -149,14 +149,14 @@ class Case:
                             url = urlexpander.expand(url)
                     except Exception as e:
                         logging.info(e)
-                    tmpChk = Check(self.caseID, url,["url"])
+                    tmpChk = Check(self.id, url,["url"])
                     self.checkArray.append(tmpChk)   
                     logging.debug(f"\t{url}") 
                     try:
                         domain = urlparse(url).netloc
                         if domain.startswith("www."):
                             domain = domain[4::]
-                        tmpChk = Check(self.caseID, domain,["domain"])
+                        tmpChk = Check(self.id, domain,["domain"])
                         self.checkArray.append(tmpChk)
                     except Exception as e:
                         logging.info(e)
@@ -178,7 +178,7 @@ class Case:
             for cur_ip in self.getUniques(ips):
                 try:
                     ip = ipaddress.ip_address(cur_ip)
-                    tmpChk = Check(self.caseID, ip.exploded, ["ip"])
+                    tmpChk = Check(self.id, ip.exploded, ["ip"])
                     self.checkArray.append(tmpChk)   
                     logging.debug(f"\t{ip.exploded}") 
                 except ValueError:
@@ -198,7 +198,7 @@ class Case:
                 if type(emails_ad) != list or type(emails_ad) != tuple:
                     email_ad = list(emails_ad)
                 for email_ad in self.getUniques(emails_ad):
-                    tmpChk = Check(self.caseID, email_ad, ["email"])
+                    tmpChk = Check(self.id, email_ad, ["email"])
                     self.checkArray.append(tmpChk)   
                     logging.debug(f"\t{email_ad}") 
             else:
@@ -218,7 +218,7 @@ class Case:
                 if len(wallat_ad) > 0:        
                     logging.debug("Create checks for crypto addresses:")
                     for cur_wallet in self.getUniques(wallat_ad):
-                        tmpChk = Check(self.caseID, cur_wallet, ["crypto"])
+                        tmpChk = Check(self.id, cur_wallet, ["crypto"])
                         self.checkArray.append(tmpChk)   
                         logging.debug(f"\t{cur_wallet}") 
                 else:
@@ -274,14 +274,14 @@ class Case:
             if any (self.raw.startswith(magicNumber) for magicNumber in magicNumbers['eml']):
                 ep = eml_parser.EmlParser(include_raw_body=True, include_attachment_data=True)
                 parsedMime = ep.decode_email_bytes(self.raw)
-                tmpChk = Check(self.caseID, parsedMime, ["mail"])
+                tmpChk = Check(self.id, parsedMime, ["mail"])
                 self.checkArray.append(tmpChk) 
                 # parsedMime = str(parsedMime.get('attachment') or '')
                 parsedMime = str(parsedMime['body']) + str(parsedMime['header']['header'].get('reply-to') or [])
                 
             # outlook- msg
             elif self.raw.startswith(magicNumbers['msg']):
-                tmpChk = Check(self.caseID, parsedMime, ["mail"])
+                tmpChk = Check(self.id, parsedMime, ["mail"])
                 self.checkArray.append(tmpChk)
                 parsedMime = extract_msg.openMsg(self.raw)
                 # parsedMime = str(parsedMime.attachments)
@@ -331,7 +331,7 @@ class Case:
         """
         Convert case object into dictionary
         """
-        case_dict = {"caseID" : self.caseID, "raw" : self.raw, "checks": [] ,"timestamp" : self.timestemp}
+        case_dict = {"id" : self.id, "raw" : self.raw, "checks": [] ,"timestamp" : self.timestemp}
         for chk in self.checkArray:
             case_dict["checks"].append(chk.getDict())
         return case_dict

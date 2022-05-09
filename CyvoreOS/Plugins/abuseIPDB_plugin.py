@@ -44,7 +44,7 @@ def checkUrl(url):
     return False
 
 def run_check(chk):
-    plugin_name = "abuseIPDB"
+    plugin_name = "AbuseIPDB"
     output = chk.raw + " Not a valid url"
     if checkUrl(chk.raw):
         output = abuseIPDBCheck(chk.raw)

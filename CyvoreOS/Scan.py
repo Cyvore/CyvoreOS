@@ -90,14 +90,14 @@ def install():
 def urlFromFileCommand(args):
     testCase = Case(str(list(strings(args.urlFromFIle)))) 
     logging.info(f"Check file:\n\t{args.urlFromFIle}")
-    logging.info(f"Create case:\n\t{testCase.caseID}")
+    logging.info(f"Create case:\n\t{testCase.id}")
     return testCase
 
 
 def scanstring(testdata, tags=False):
     testCase = Case(testdata)
     logging.info(f"Check string:\n\t{testdata}")
-    logging.info(f"Create case:\n\t{testCase.caseID}")
+    logging.info(f"Create case:\n\t{testCase.id}")
     for plugin in discovered_plugins:
         for chk in testCase.checkArray:
             current_plugin = importlib.import_module(plugin)
@@ -130,7 +130,7 @@ def runPlugins(testdata, plugins_list):
 
 
 def run_plugins_for_existing_case(case, tags=[]):
-    logging.info(f"Working on existing case:\n\t{case.caseID}")
+    logging.info(f"Working on existing case:\n\t{case.id}")
     for plugin in discovered_plugins:
         for chk in case.checkArray:
             current_plugin = importlib.import_module(plugin)
@@ -158,11 +158,11 @@ def urlAndDomainChecks(case):
                 logging.info(f"{case.raw} is shortend, got - {url}")
 
                 # Add destination url check to case
-                case.checkArray.append(Check(case.caseID, url, ["url"]))
+                case.checkArray.append(Check(case.id, url, ["url"]))
             else:
 
                 # Add url check to case
-                case.checkArray.append(Check(case.caseID, case.raw, ["url"]))
+                case.checkArray.append(Check(case.id, case.raw, ["url"]))
         except Exception as e:
             logging.info(f"Error with urlexpander.expand('{case.raw}')")
             logging.info(e)
@@ -175,7 +175,7 @@ def urlAndDomainChecks(case):
             logging.info(f"in {case.raw} found domain {domain}")
 
             # Add domain check to case
-            case.checkArray.append(Check(case.caseID, domain, ["domain"]))
+            case.checkArray.append(Check(case.id, domain, ["domain"]))
         except Exception as e:
             logging.info(f"error with urlparse('{case.raw}').netloc")
             logging.info(e)
@@ -196,7 +196,7 @@ def ipChecks(case):
         for cur_ip in case.getUniques(ips):
             try:
                 ip = ipaddress.ip_address(cur_ip)
-                case.checkArray.append(Check(case.caseID, ip.exploded, ["ip"]))
+                case.checkArray.append(Check(case.id, ip.exploded, ["ip"]))
                 logging.debug(f"\t{ip.exploded}")
                 return True
             except ValueError:
@@ -209,7 +209,7 @@ def ipChecks(case):
 def scanUrl(url, tags=False):
     testCase = Case(url.strip(), empty=True)
     logging.info(f"Check Url:\n\t{url}")
-    logging.info(f"Create case:\n\t{testCase.caseID}")
+    logging.info(f"Create case:\n\t{testCase.id}")
     if not urlAndDomainChecks(testCase):
         logging.info("Not found url or domain, checking for IPs")
         if not ipChecks(testCase):
@@ -241,7 +241,7 @@ def walletsCheck(case):
             if len(wallet_ad) > 0:
                 logging.debug("Create checks for crypto addresses:")
                 for cur_wallet in case.getUniques(wallet_ad):
-                    case.checkArray.append(Check(case.caseID, cur_wallet, ["crypto"]))
+                    case.checkArray.append(Check(case.id, cur_wallet, ["crypto"]))
                     logging.debug(f"\t{cur_wallet}")
                     return True
             else:
@@ -255,7 +255,7 @@ def walletsCheck(case):
 def scan_one_string(data, tags=False):
     testCase = Case(data.strip(), empty=True)
     logging.info(f"Check :\n\t{data}")
-    logging.info(f"Create case:\n\t{testCase.caseID}")
+    logging.info(f"Create case:\n\t{testCase.id}")
     if not urlAndDomainChecks(testCase) or not ipChecks(testCase) or not walletsCheck(testCase):
         return ""
     for plugin in discovered_plugins:

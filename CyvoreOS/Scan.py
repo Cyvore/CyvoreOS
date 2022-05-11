@@ -2,11 +2,9 @@ from CyvoreOS.checkObject import Check
 from CyvoreOS.checkObject import Case
 import importlib
 from CyvoreOS import Plugins
-#from CyvoreOS import interfaces
 import pkgutil
 import string
 import logging
-#import CyvoreOS.interfaces
 import urlexpander
 from urllib.parse import urlparse
 import re
@@ -42,6 +40,7 @@ discovered_plugins = {
     for finder, name, ispkg
     in iter_namespace(Plugins)
 }
+
 
 def exitWithLog(msg):
     if msg:

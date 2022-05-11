@@ -1,14 +1,17 @@
 import requests
 import socket
-import sys
 import urllib3
 import json
 import logging
 import os
 
-ABUSE_IPDB_KEY = os.environ['ABUSE_IPDB_KEY']
-ABUSE_IPDB_URL = 'https://api.abuseipdb.com/api/v2/check'
- 
+try:
+    ABUSE_IPDB_KEY = os.environ['ABUSE_IPDB_KEY']
+    ABUSE_IPDB_URL = 'https://api.abuseipdb.com/api/v2/check'
+except Exception as e:
+    logging.info(f"'ABUSE_IPDB_KEY' wasn't found: {e}")
+
+
 def abuseIPDBCheck(check_url):
     querystring = {
     'ipAddress': socket.gethostbyname(urllib3.get_host(check_url)[1]),
@@ -24,11 +27,13 @@ def abuseIPDBCheck(check_url):
     # print(json.dumps(decodedResponse, sort_keys=True, indent=4))
     return decodedResponse
 
+
 def printIPDBoutput(output):
     print("IP address:          ", output["data"]["ipAddress"])
     print("ISP:                 ", output["data"]["isp"])
     print("Ip country location: ", output["data"]["countryCode"])
     print("Ip Domain:           ", output["data"]["domain"])
+
 
 def checkUrl(url):
     status = "N/A"
@@ -43,16 +48,19 @@ def checkUrl(url):
         return True
     return False
 
+
 def run_check(chk):
     plugin_name = "AbuseIPDB"
     output = chk.raw + " Not a valid url"
     if checkUrl(chk.raw):
         output = abuseIPDBCheck(chk.raw)
     chk.add_plugin(plugin_name,output)
-    
+
+
 def describe():
     desc = """This plugin query url/ip in abuse IP DB database """
     return desc
+
 
 def tags():
     tags_list = ["ip", "domain"]

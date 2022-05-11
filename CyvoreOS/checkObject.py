@@ -153,10 +153,10 @@ class Case:
                     self.checkArray.append(tmpChk)   
                     logging.debug(f"\t{url}") 
                     try:
-                        domain = urlparse(url).netloc
+                        domain = urlparse(url).scheme + '://' + urlparse(url).netloc
                         if domain.startswith("www."):
                             domain = domain[4::]
-                        tmpChk = Check(self.id, domain,["domain"])
+                        tmpChk = Check(self.id, domain, ["domain"])
                         self.checkArray.append(tmpChk)
                     except Exception as e:
                         logging.info(e)

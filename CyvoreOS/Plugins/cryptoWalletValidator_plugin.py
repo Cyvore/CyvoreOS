@@ -15,17 +15,21 @@ suspiciousAmount = amountToCheck / 2
 suspiciousRange = 0 
 # Needs to be tuned, If increased, more wallets would fall under the definition of suspicious transaction error
 
+
 class BlackListError(Exception):
     """Raised when the address appears on a blacklist"""
     pass
+
 
 class transactionError(Exception):
     """Raised when the address appears to have made suspicious transactions"""
     pass
 
+
 class Verified(Exception):
     """Raised when all the validators verified the address"""
     pass
+
 
 class transaction:
     """
@@ -48,6 +52,7 @@ class transaction:
     
     def __ge__(self, other):
         return not self < other
+
 
 class transactionArray:
     """
@@ -222,16 +227,17 @@ def walletVerification(wallet):
     return 'Wallet address has an issue (corrupt / non-existent)'
 
 
-
 def run_check(chk):
     output = walletVerification(chk.raw)
     plugin_name = "cryptoWalletValidator-Plugin"
     output = "cryptoWalletValidator-Plugin check: " + chk.raw
     chk.add_plugin(plugin_name,output)
-  
+
+
 def describe():
     desc = """Verification of a cryptocurrency wallet"""
     return desc
+
 
 def tags():
     tags_list = ["crypto"]

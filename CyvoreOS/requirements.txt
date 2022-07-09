@@ -9,3 +9,4 @@ python-whois
 eml_parser
 extract_msg
 vt-py
+jsonpickle==2.2.0

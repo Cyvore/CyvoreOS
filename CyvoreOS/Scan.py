@@ -115,7 +115,7 @@ def runPlugins(testdata, plugins_list):
     testCase = Case(testdata)
     for plugin in discovered_plugins:
         if plugins_list:
-            plugin_name = str(plugin).split(".")[1].strip("_plugin")
+            plugin_name = str(plugin).split(".")[-1].strip("_plugin")
             if plugin_name not in plugins_list:
                 logging.info(f"Skipping {plugin_name} - plugin flag is on.")
                 continue
@@ -126,9 +126,28 @@ def runPlugins(testdata, plugins_list):
             
             current_plugin = importlib.import_module(plugin)
             current_plugin.run_check(chk)
+    return testCase
 
 
-def run_plugins_for_existing_case(case, tags=[]):
+def runPluginForCheck(chk, plugins_list):
+    for plugin in discovered_plugins:
+        logging.info(f"plugin is {plugin}")
+        if plugins_list:
+            # Weird bug with virusTotal_plugin where .strip("_plugin") remove the l_plugin
+            # plugin_name = str(plugin).split(".")[-1].strip("_plugin")
+            plugin_name = str(plugin).split(".")[-1][:-7]
+            if plugin_name not in plugins_list:
+                logging.info(f"Skipping {plugin_name} - plugin flag is on.")
+                continue
+        elif "debug" in str(plugin).split(".")[1].strip("_plugin"):
+            continue
+        logging.debug(f"Running plugin: {str(plugin)}")
+        current_plugin = importlib.import_module(plugin)
+        current_plugin.run_check(chk)
+    return chk
+
+
+def run_plugins_for_existing_case(case, tags=False):
     logging.info(f"Working on existing case:\n\t{case.id}")
     for plugin in discovered_plugins:
         for chk in case.checkArray:

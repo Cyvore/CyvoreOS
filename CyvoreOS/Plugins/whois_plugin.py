@@ -1,6 +1,8 @@
 import whois
 import logging
 import requests
+from pathlib import Path
+from CyvoreOS.checkTypes import Check, Plugin
 
 def whois_plugin(data):
     try:
@@ -12,7 +14,13 @@ def whois_plugin(data):
             hostDict['domain_name'] = hostDict['domain_name'][0].lower()
 
         # search for domain in 500DB
-        domainList = open('CyvoreOS\\Resources\\top500domains.txt', 'r').read().split('\n')
+        try:
+            domainList = open('CyvoreOS\\Resources\\top500domains.txt', 'r').read().split('\n')
+        except Exception as e:
+            logging.warning(e)
+            logging.info("try use local file instead")
+            p = Path(__file__).with_name('top500domains.txt')
+            domainList = open(p, 'r').read().split('\n')
         hostDict['verified'] = True if hostDict['domain_name'] in domainList else False
 
         return hostDict
@@ -21,10 +29,11 @@ def whois_plugin(data):
     return ''
 
 
-def run_check(chk):
+def run_check(chk: Check) -> Plugin:
     plugin_name = "Whois"
-    output = whois_plugin(chk.raw)
-    chk.add_plugin(plugin_name,output)
+    data = str(chk.data)
+    output = whois_plugin(data)
+    return Plugin(chk.id, plugin_name, data, output)
 
 
 def describe():

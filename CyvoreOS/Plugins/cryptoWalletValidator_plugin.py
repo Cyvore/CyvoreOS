@@ -5,6 +5,7 @@ from datetime import timedelta
 from blockcypher import get_address_overview
 from blockcypher import get_address_details
 from requests.exceptions import ReadTimeout
+from CyvoreOS.checkTypes import Check, Plugin
 
 # Coin options: bitcoin, litecoin, dogecoin, dashcoin
 coins = ['btc', 'ltc', 'doge', 'dash']  
@@ -227,11 +228,12 @@ def walletVerification(wallet):
     return 'Wallet address has an issue (corrupt / non-existent)'
 
 
-def run_check(chk):
-    output = walletVerification(chk.raw)
+def run_check(chk: Check) -> Plugin:
+    data = str(chk,data)
+    output = walletVerification(data)
     plugin_name = "cryptoWalletValidator-Plugin"
-    output = "cryptoWalletValidator-Plugin check: " + chk.raw
-    chk.add_plugin(plugin_name,output)
+    output = "cryptoWalletValidator-Plugin check: " + data
+    return Plugin(chk.id, plugin_name, data, output)
 
 
 def describe():

@@ -4,6 +4,7 @@ import urllib3
 import json
 import logging
 import os
+from CyvoreOS.checkTypes import Check, Plugin
 
 try:
     ABUSE_IPDB_KEY = os.environ['ABUSE_IPDB_KEY']
@@ -49,12 +50,13 @@ def checkUrl(url):
     return False
 
 
-def run_check(chk):
+def run_check(chk: Check) -> Plugin:
     plugin_name = "AbuseIPDB"
-    output = chk.raw + " Not a valid url"
-    if checkUrl(chk.raw):
-        output = abuseIPDBCheck(chk.raw)
-    chk.add_plugin(plugin_name,output)
+    data = str(chk.data)
+    output = "Couldn't reach url: " + data
+    if checkUrl(data):
+        output = abuseIPDBCheck(data)
+    return Plugin(chk.id, plugin_name, data, output)
 
 
 def describe():

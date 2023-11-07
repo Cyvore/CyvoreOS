@@ -1,3 +1,6 @@
+"""
+This file will be deprecated in the future.
+"""
 from datetime import datetime
 import socket
 import logging
@@ -8,20 +11,23 @@ import json
 import jsonpickle
 from json import JSONEncoder
 from urllib.parse import urlparse
+from uuid import uuid4
 
 # MIME libraries
-from eml_parser import eml_parser
+import eml_parser
 import extract_msg
 
-IPV4REGEX = r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b"
-IPV6REGEX = r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))"
-URLREGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
-EMAILREGEX = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
-BTCREG = r"(?:bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}"
-DASHREG = r"X[1-9A-HJ-NP-Za-km-z]{33}"
-LTCREG = r"[LM3][a-km-zA-HJ-NP-Z1-9]{26,33}"
-DOGEREG = r"D{1}[5-9A-HJ-NP-U]{1}[1-9A-HJ-NP-Za-km-z]{32}"
+# regex_patterns.py
+IPV4REGEX = re.compile(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b")
+IPV6REGEX = re.compile(r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))")
+URLREGEX = re.compile(r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))")
+EMAILREGEX = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b")
+BTCREG = re.compile(r"(?:bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}")
+DASHREG = re.compile(r"X[1-9A-HJ-NP-Za-km-z]{33}")
+LTCREG = re.compile(r"[LM3][a-km-zA-HJ-NP-Z1-9]{26,33}")
+DOGEREG = re.compile(r"D{1}[5-9A-HJ-NP-U]{1}[1-9A-HJ-NP-Za-km-z]{32}")
 COINS = [BTCREG, DASHREG, LTCREG, DOGEREG]
+
 
 
 class Plugin:
@@ -40,12 +46,35 @@ class Plugin:
         """
         Convert plugin object into dictionary
         """
-        plugin_dict = {"checkID": self.checkID, "pluginName": self.pluginName, "raw": self.raw, "output": self.output,
-                       "timestamp": self.timestamp}
+        plugin_dict = {"checkID": self.checkID, "pluginName": self.pluginName, "raw": self.raw, "output": self.output}
         return plugin_dict
 
     def to_json(self):
         return jsonpickle.encode(self, unpicklable=False)
+
+    @classmethod
+    def from_json(cls, json_str):
+        logging.info(f"from_json - json_str: {json_str}, type: {type(json_str)}")
+        
+        json_dict = json.loads(json_str)
+        
+        instance = cls(
+            json_dict["checkID"],
+            json_dict["pluginName"],
+            json_dict["raw"],
+            json_dict["output"]
+        )
+        instance.timestamp = json_dict["timestamp"]
+        return instance
+
+
+def _deserialize_custom_object(obj):
+    print(f"_deserialize_custom_object - obj: {obj}, type: {type(obj)}")
+
+    if "checkID" in obj and "pluginName" in obj and "raw" in obj and "output" in obj:
+        return Plugin.from_json(obj)
+    
+    return obj
 
 
 class Check:
@@ -60,8 +89,7 @@ class Check:
         self.reputation = 0
         self.hash = ""
         self.plugins = []
-        self.checkID = self.getID()
-        self.id = id
+        self.id = id or str(uuid4())
         self.tags = []
         if tag and type(tag) == list:
             self.tags = tag
@@ -71,28 +99,11 @@ class Check:
         """
         Convert check object into dictionary
         """
-        check_dict = {"rawData": self.raw, "reputation": self.reputation, "checkID": self.checkID, "plugins": [],
+        check_dict = {"rawData": self.raw, "reputation": self.reputation, "checkID": self.id, "plugins": [],
                       "hash": self.hash}
         for plg in self.plugins:
             check_dict["plugins"].append(plg.getDict())
         return check_dict
-
-    def getID(self):
-        """
-        Create ID from the checked value:
-         - hash   (if not exist)
-         - url    (if not exist)
-         - wallet (if not exist)
-         - empty string.
-        """
-        # logic TBD
-        if self.hash != "":
-            id = self.hash
-        elif self.raw != "":
-            id = self.raw
-        else:
-            id = ""
-        return id
 
     def isEmpty(self):
         """
@@ -102,7 +113,7 @@ class Check:
          - wallet
          - checkID
          """
-        if self.raw == "" and self.hash == "" and self.checkID == "":
+        if self.raw == "":
             return True
         return False
 
@@ -112,7 +123,7 @@ class Check:
         """
         if output == "":
             return False
-        current_plugin = Plugin(self.checkID, pluginName, self.raw, output)
+        current_plugin = Plugin(self.id, pluginName, self.raw, output)
         self.plugins.append(current_plugin)
         return True
 
@@ -128,7 +139,7 @@ class Case:
 
     def __init__(self, raw, empty=False, customID=None):
         logging.info("Initializing Case")
-        self.id = customID or self.getid()
+        self.id = customID or str(uuid4())
         self.checkArray = []
         self.raw = raw
         if not empty:
@@ -136,15 +147,6 @@ class Case:
         self.timestemp = datetime.now().strftime("%m%d%Y%H%M%S")
         logging.debug(f"Created case {self.id} with {self.size()} checks")
 
-    def getid(self):
-        """
-        Create case ID from current time and host name, may changed TBD
-        """
-        # logic TBD
-        timeStamp = datetime.now().strftime("%m%d%Y%H%M%S")
-        hostPart = socket.gethostname()
-        id = "%s-%s" % (timeStamp, hostPart)
-        return id
 
     def urlAndDomainChecks(self):
         """
@@ -165,14 +167,14 @@ class Case:
                             url = urlexpander.expand(url)
                     except Exception as e:
                         logging.info(e)
-                    tmpChk = Check(self.id, url, ["url"])
+                    tmpChk = Check(str(uuid4()), url, ["url"])
                     self.checkArray.append(tmpChk)
                     logging.debug(f"\t{url}")
                     try:
                         domain = urlparse(url).scheme + '://' + urlparse(url).netloc
                         if domain.startswith("www."):
                             domain = domain[4::]
-                        tmpChk = Check(self.id, domain, ["domain"])
+                        tmpChk = Check(str(uuid4()), domain, ["domain"])
                         self.checkArray.append(tmpChk)
                     except Exception as e:
                         logging.info(e)
@@ -194,7 +196,7 @@ class Case:
             for cur_ip in self.getUniques(ips):
                 try:
                     ip = ipaddress.ip_address(cur_ip)
-                    tmpChk = Check(self.id, ip.exploded, ["ip"])
+                    tmpChk = Check(str(uuid4()), ip.exploded, ["ip"])
                     self.checkArray.append(tmpChk)
                     logging.debug(f"\t{ip.exploded}")
                 except ValueError:
@@ -214,7 +216,7 @@ class Case:
                 if type(emails_ad) != list or type(emails_ad) != tuple:
                     email_ad = list(emails_ad)
                 for email_ad in self.getUniques(emails_ad):
-                    tmpChk = Check(self.id, email_ad, ["email"])
+                    tmpChk = Check(str(uuid4()), email_ad, ["email"])
                     self.checkArray.append(tmpChk)
                     logging.debug(f"\t{email_ad}")
             else:
@@ -234,7 +236,7 @@ class Case:
                 if len(wallat_ad) > 0:
                     logging.debug("Create checks for crypto addresses:")
                     for cur_wallet in self.getUniques(wallat_ad):
-                        tmpChk = Check(self.id, cur_wallet, ["crypto"])
+                        tmpChk = Check(str(uuid4()), cur_wallet, ["crypto"])
                         self.checkArray.append(tmpChk)
                         logging.debug(f"\t{cur_wallet}")
                 else:
@@ -293,14 +295,14 @@ class Case:
             if any(self.raw.startswith(magicNumber) for magicNumber in magicNumbers['eml']):
                 ep = eml_parser.EmlParser(include_raw_body=True, include_attachment_data=True)
                 parsedMime = ep.decode_email_bytes(self.raw)
-                tmpChk = Check(self.id, parsedMime, ["mail"])
+                tmpChk = Check(str(uuid4()), parsedMime, ["mail"])
                 self.checkArray.append(tmpChk)
                 # parsedMime = str(parsedMime.get('attachment') or '')
                 parsedMime = str(parsedMime['body']) + str(parsedMime['header']['header'].get('reply-to') or [])
 
             # outlook- msg
             elif self.raw.startswith(magicNumbers['msg']):
-                tmpChk = Check(self.id, parsedMime, ["mail"])
+                tmpChk = Check(str(uuid4()), parsedMime, ["mail"])
                 self.checkArray.append(tmpChk)
                 parsedMime = extract_msg.openMsg(self.raw)
                 # parsedMime = str(parsedMime.attachments)

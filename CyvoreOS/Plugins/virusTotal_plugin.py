@@ -2,6 +2,7 @@ import vt
 import time
 import os
 import logging
+from CyvoreOS.checkTypes import Check, Plugin
 
 try:
     VIRUS_TOTAL_KEY = os.environ['VIRUS_TOTAL_KEY']
@@ -28,10 +29,11 @@ def virusTotalCheck(url):
     return ""
 
 
-def run_check(chk):
+def run_check(chk: Check) -> Plugin:
     plugin_name = "VirusTotal"
-    output = virusTotalCheck(chk.raw)
-    chk.add_plugin(plugin_name,output)
+    data = str(chk.data)
+    output = virusTotalCheck(data)
+    return Plugin(chk.id, plugin_name, data, output)
 
 
 def describe():

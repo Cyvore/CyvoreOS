@@ -1,6 +1,9 @@
 from CyvoreOS.checkTypes import Check, Plugin
 def run_check(chk: Check):
     plugin_name = "Template-Plugin"
+    """
+    plugin logic goes here
+    """
     output = "example for output"
     return Plugin(chk.id, plugin_name, chk.data, output)
 

@@ -6,13 +6,15 @@
 </p>
 
 ## CyvoreOS 
-Cyvore os is an open source tool for auto phishing detection.  
-You are welcome to visit our site [cyvore.com](https://cyvore.com)
+Welcome to CyvoreOS, an open source tool for automated phishing detection! :fishing_pole_and_fish:
+
+CyvoreOS works by running a suite of external tools and internal plugins to scan data for phishing indicators. It can be used to scan URLs, IP addresses, domain names, cryptocurrency wallets and more!
 
 ### Install:
-There are 2 simple ways to install this tool:
+There are two ways to install CyvoreOS:
 
-**1. Installing from sources:**
+
+**1. Install from sources:**
 
 preinstalls requirements:  
   - python 3.7 + 
@@ -26,12 +28,42 @@ preinstalls requirements:
 
 run the following command:  
 `pip install CyvoreOS`  
-Then use:  
+**Usage:**
+
+Once installed, you can use CyvoreOS to scan data by importing the `CyvoreOS` module and calling the `scanstring()` function. The `scanstring()` function takes a string as input and returns a list of checks. Each check contains information about the data unit that was scanned, the plugins that were run, and the results of those plugins.
+
+For example, to scan the URL `https://example.com/evil` for phishing indicators, you would use the following code:
+
 ```
     import CyvoreOS
-    testCase = CyvoreOS.scanstring(<url>)
-    print(testCase.getDict())
+    checks = CyvoreOS.scanstring(<string data>)
+    for check in checks:
+        print(check)
 ```
+This would print a list of checks similar to the following:
+```
+[
+    {
+        "plugins": ["virusTotal_plugin_object"],
+        "id": "uuid4",
+        "tag": "url",
+        "data": "https://example.com/evil"
+    },
+    {
+        "plugins": ["abuseIPDB_plugin_object", "whois_plugin_object"],
+        "id": "uuid4",
+        "tag": "domain",
+        "data": "https://example.com"
+    },
+]
+```
+
+CyvoreOS is powered by a suite of plugins, each of which performs a specific task. 
+For example, the `virusTotal` plugin checks URLs and files against the VirusTotal database. 
+The `abuseIPDB` plugin checks IP addresses against the abuseIPDB database.
+The `cryptoWalletValidator` plugin checks wallet address behaviors online.
+
+You can add your own plugins to CyvoreOS by implementing the [following interface](/CyvoreOS/Template_plugin.py):
 
 ## Note:
 **make sure to have in your environment variables tokens for the extranls tools:**  
@@ -46,27 +78,17 @@ Then use:
 `export ABUSE_IPDB_KEY=<replace with api key>`  
 `export VIRUS_TOTAL_KEY=<replace with api key>`  
 
-### Running
 
-**Run from API:**
-TBD, currently available to use on cyvore.com/API   
-
-**Run with CLI**
-TBD if we are going to support this and add run.py  
 
 ## Architecture: 
-
-Cyvore tool is working on plugin formation, each plugin will preform one concise objective.  
-For example plugin could be check url in virusTotal, this is a rather big objective.  
-A small one could be test how much a url is similear to known domain.  
-As a guiding line we would prefer each plugin to as concise as possible.  
+CyvoreOS is built on a plugin-based architecture, with each plugin performing a specific task. This allows CyvoreOS to be easily extensible and adaptable to new phishing detection techniques.
 
 ### Plugins:
-Every functionality will be called a plugin, and will follow a set of rules:   
+Every functionality is called a plugin, and will follow a set of rules:   
 * Contains run_check(chk) function.  
   - run_check is the plugin entry point that will always recive [check object](#Check-object)  
   - plugin_name is the plugin present name in output.   
-  - and output could be string or dict object.  
+  - output could be dict string or bool.  
 ```
 def run_check(chk):
     plugin_name = "Template-Plugin"
@@ -91,20 +113,16 @@ def tags():
 ```
 
 
-### Case object:
-Case is the object our tool create for each investigation.  
-Case will have a check array.  
-
 ### Check object:
-Check is the smallest object to test against plugins.  
-When check is made as part of a Case object it will hold one value in raw_data, url/file/crypto/ and etc.  
-Check will have a plugins array, which will run plugins against this raw_data.
+A check object is the smallest unit of data that is scanned by CyvoreOS. A check object can contain a URL, IP address, domain name, cryptocurrency wallet address, or any other type of data that can be used to detect phishing.
+Check will have a plugins list, which are ran plugins against this check.data 
+
 
 ### Plugin object:
-Plugin object holds all plugins output for a check as a dictionary, with the plugin name as key, and output as value.  
+A plugin object contains the output of a plugin for a given check object. The output of a plugin can be anything from a simple boolean value to a complex JSON object.
 
 ## Contribute
-We encourage open discussion and collaboration using GitHub Issues.  
-If you have a suggestion, question, or a general comment - please use Issues, and let us know what is on your mind.   
-We are also accepting new plugins if you have ideas, open issue or even a PR in the subject.  
-Lets work together on making the internet safer :smile:  
+We encourage open discussion and collaboration using GitHub Issues. 
+If you have a suggestion, question, or a general comment, please open an issue. 
+We are also accepting new plugins, so if you have ideas, please open an issue or even a pull request. 
+Let's work together to make the internet a safer place!

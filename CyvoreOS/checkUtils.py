@@ -19,7 +19,7 @@ def extractUrlAndDomainChecks(data: str) -> List[Check]:
     checks = []
     try:
         logging.debug("extractUrlAndDomainChecks Querying for URLs")
-        urls = re.findall(URLREGEX, data)[0]
+        urls = re.findall(URLREGEX, data)
         if len(urls) > 0:
             urls = set(urls)
             for url in urls:

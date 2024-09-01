@@ -1,6 +1,7 @@
 from pathlib import Path
 import logging
 import whois
+import whois.whois
 from cyvoreos.check_types import Check, Plugin
 from cyvoreos.plugins.base_plugin import BasePlugin
 

@@ -1,176 +1,274 @@
-from typing import List
-from CyvoreOS.checkTypes import Check, Plugin
-from CyvoreOS.checkUtils import createChecks
+
 import importlib
-from CyvoreOS import Plugins
+import inspect
 import pkgutil
 import string
 import logging
+from typing import List, Union, Dict    
+from types import ModuleType
+from cyvoreos import plugins
+from cyvoreos.plugins.base_plugin import BasePlugin
+from cyvoreos.check_types import Check, Plugin
+from cyvoreos.check_utils import create_checks
 
+logging.basicConfig(
+    filename='cyvore_main.log',
+    level=logging.DEBUG,
+    format='%(asctime)s | %(name)s | %(levelname)s | %(message)s'
+)
 
-logging.basicConfig(filename='cyvore_main.log',
-                    level=logging.DEBUG,
-                    format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 printable = set(string.printable)
 
+# Initialize plugins dictionary
+discovered_plugins: Dict[str, BasePlugin] = {}
+
 # Get absolute path for plugins
-def iter_namespace(ns_pkg):
-    # Specifying the second argument (prefix) to iter_modules makes the
-    # returned name an absolute name instead of a relative one. This allows
-    # import_module to work without having to do additional modification to
-    # the name.
+def _iter_namespace(ns_pkg):
+    """
+    Generate an iterator over the namespace package
+    Specifying the second argument (prefix) to iter_modules makes the
+    returned name an absolute name instead of a relative one. This allows
+    import_module to work without having to do additional modification to
+    the name.
+    """
+
     return pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + ".")
 
-# Make all Plugins dictionary 
-discovered_plugins = {
-    name: importlib.import_module(name)
-    for finder, name, ispkg
-    in iter_namespace(Plugins)
-}
+def _find_plugin_class(module: ModuleType) -> Union[BasePlugin, None]:
+    """
+    Find the plugin class in the module
 
+    Parameters:
+        module (ModuleType): module to search for the plugin class
 
-def exitWithLog(msg):
+    Returns:
+        class: plugin class
+    """
+    
+    memebers = inspect.getmembers(module, inspect.isclass)
+
+    for _, obj in memebers:
+        if issubclass(obj, BasePlugin) and obj != BasePlugin:
+            return obj
+        
+    return None
+
+# Discover all plugins
+for _, name, _ in _iter_namespace(plugins):
+    # Find the plugin class in the module
+    plugin = _find_plugin_class(importlib.import_module(name))
+
+    # Add the plugin to the dictionary
+    if plugin:
+        discovered_plugins[plugin.name] = plugin
+
+def exit_with_log(msg, logger: logging.Logger = logging):
+    """
+    Exit the program with a log message
+
+    Parameters:
+        msg (str): message to log
+        logger (Logger): logger to use (optional)
+    """
+
+    # Log the warning message if there is one
     if msg:
-        logging.warning(msg)
+        logger.warning(msg)
+
+    # Log the end of the program
     else:
-        logging.info("Program finished successfully")
-    logging.info("-----------------------------------------------------\n\n\n")
+        logger.info("Program finished successfully")
+
+    # Log the end of the program
+    logger.info("-" * 50)
+    logger.info("\n\n\n")
+
+    # Exit the program
     exit()
 
-
-def strings(filename, min=4):
-    with open(filename, errors="ignore") as f:  # Python 3.x
+def strings(filename, minimum = 4):
+    """
+    Get strings from file
+    """
+    
+    with open(filename, errors="ignore", encoding="utf-8") as f:  # Python 3.x
         result = ""
         for c in f.read():
             if c in string.printable:
                 result += c
                 continue
-            if len(result) >= min:
+            if len(result) >= minimum:
                 yield result
             result = ""
-        if len(result) >= min:  # catch result at EOF
+        if len(result) >= minimum:  # catch result at EOF
             yield result
 
 
-def listplugins():
-    logging.debug("Running ls option")
-    for plugin in discovered_plugins:
-        current_plugin = importlib.import_module(plugin)
-        output = current_plugin.describe()
-        logging.info("\t" + plugin, "-", output)
-    exitWithLog("Finish running ls option")
+def list_plugins(logger: logging.Logger = logging):
+    """
+    Log all plugins
 
+    Parameters:
+        logger (Logger): logger to use (optional)
+    """
 
-"""
-# Only for windows developers 
-def install():
-    logging.info("Running install option")
-    path = "\"C:\\Python39\\python.exe\" \"" + __file__ + "\" -uf \"%1\""
-    logging.debug(f"Path in registry:\t{path}")
-    # interfaces.right_click_install.define_action_on("*", "CheckForPhish", path, title="Run Phish Check")
-    logging.info("Installed right click addon")
-    exitWithLog("")
-"""
+    logger.debug("Listing all plugins")
 
+    for plugin_name, plugin_class in discovered_plugins.items():
+        logger.info("\t" + plugin_name + " - " + plugin_class.description)
 
-def urlFromFileCommand(args):
-    logging.info(f"Check file:\n\t{args.urlFromFIle}")
-    checks = createChecks(strings(args.urlFromFIle))
+    exit_with_log("Finish running ls option")
+
+def url_from_file_command(args: dict, logger: logging.Logger = logging) -> List[Check]:
+    """
+    Main function for running all plugins on file
+    
+    Parameters:
+        args: argparse arguments
+        logger: logger to use (optional)
+        
+    Returns:
+        List[Check]: list of checks
+    """
+
+    logger.info(f"Check file: \t{args.urlFromFile}")
+    checks = create_checks(strings(args.urlFromFile), logger)
     return checks
 
 
-def scanstring(testdata: str) -> List[Check]:
-    """ scanstring - main function for scanning string with all plugins """
-    checks = createChecks(testdata)
-    logging.info(f"Checking string:\n\t{testdata}")
-    for plugin in discovered_plugins:
-        for chk in checks:
-            current_plugin = importlib.import_module(plugin)
-            if chk.tag:
-                if chk.tag in current_plugin.tags():
-                    current_plugin.run_check(chk)
+def scanstring(data: str, logger: logging.Logger = logging) -> List[Check]:
+    """
+    main function for running all plugins on string
+
+    Parameters:
+        data (str): string to run plugins on
+        logger (Logger): logger to use (optional)
+
+    Returns:
+        List[Check]: list of checks
+    """
+    checks = create_checks(data)
+    logger.info(f"Checking string:\n\t{data}")
+
+    for plugin_name, plugin_class in discovered_plugins.items():
+        for check in checks:
+            if check.tag:
+                if check.tag in plugin_class.tags:
+                    check.plugins.append(plugin_class.run(check, logger))
+
                 else:
-                    plugin_name = str(plugin).split(".")[-1].strip("_plugin")
-                    logging.info(f"Skip plugin {plugin_name} because of tags mismatch: {current_plugin.tags()}")
+                    logger.info(f"Skip plugin {plugin_name} because of tags mismatch: {plugin_class.tags}")
+
             else:
-                current_plugin.run_check(chk)  
+                check.plugins.append(plugin_class.run(check, logger) )
+
     return checks
 
 
-def runPlugins(testdata: str, plugins_list: List[str], force=True):
-    """ runPlugins - main function for running specific plugins on string"""
-    checks = createChecks(testdata)
-    for plugin in discovered_plugins:
+def run_plugins(data: str, plugins_list: List[str], force=True, logger: logging.Logger = logging) -> List[Check]:
+    """
+    Main function for running specific plugins on string
+
+    Parameters:
+        data (str): string to run plugins on
+        plugins_list (List[str]): list of plugins to run
+        force (bool): run plugins even if tags mismatch
+        logger (Logger): logger to use (optional)
+
+    Returns:
+        List[Check]: list of checks
+    """
+
+    checks = create_checks(data)
+    lower_plugins_list = [plugin.lower() for plugin in plugins_list]
+
+    for plugin_name, plugin_class in discovered_plugins.items():
         if plugins_list:
-            plugin_name = str(plugin).split(".")[-1].strip("_plugin")
-            if plugin_name not in plugins_list:
-                logging.info(f"Skipping {plugin_name} - plugin flag is on.")
+            if plugin_name.lower() not in lower_plugins_list:
+                logger.info(f"Skipping {plugin_name} - plugin flag is on.")
                 continue
-        logging.debug(f"Running plugin: {str(plugin)}")
+
+        logger.debug(f"Running plugin: {str(plugin_class)}")
+
         if force:
-            for chk in checks:
-                current_plugin = importlib.import_module(plugin)
-                current_plugin.run_check(chk)
+            for check in checks:
+                check.plugins.append(plugin_class.run(check, logger))
+
         else:
-            for chk in checks: 
-                current_plugin = importlib.import_module(plugin)
-                if chk.tag in current_plugin.tags():
-                    current_plugin.run_check(chk)
+            for check in checks: 
+                if check.tag in plugin_class.tags:
+                    check.plugins.append(plugin_class.run(check, logger))
+
     return checks
 
 
-def runPluginForCheck(chk: Check, plugins_list: List[str], force=True) -> List[Plugin]:
-    """ runPluginForCheck - main function for running specific plugins on check
-    chk: Check - check to run plugins on
-    plugins_list: List[str] - list of plugins to run
-    force: bool - run plugins even if tags mismatch
-    returns list of plugins that ran on check"""
+def run_plugin_for_check(check: Check, plugins_list: List[str], force: bool = True, logger: logging.Logger = logging) -> List[Plugin]:
+    """
+    Main function for running specific plugins on check
+    
+    Parameters:
+        check (Check): Check - check to run plugins on
+        plugins_list: List[str] - list of plugins to run
+        force: bool - run plugins even if tags mismatch
+        logger: Logger - logger to use (optional)
+
+    Returns:
+        List[Plugin]: list of plugins that ran on check
+    """
+
     plugins_output = []
+    lower_plugins_list = [plugin.lower() for plugin in plugins_list]
+
     if force:
-        for plugin in discovered_plugins:
-            logging.info(f"plugin is {plugin}")
-            if plugins_list:
-                # Weird bug with virusTotal_plugin where .strip("_plugin") remove the l_plugin
-                # plugin_name = str(plugin).split(".")[-1].strip("_plugin")
-                plugin_name = str(plugin).split(".")[-1][:-7]
-                if plugin_name not in plugins_list:
-                    logging.info(f"Skipping {plugin_name} - plugin flag is on.")
+        for plugin_name, plugin_class in discovered_plugins.items():
+            logger.info(f"Plugin is {plugin_name}")
+
+            if lower_plugins_list:
+                if plugin_name.lower() not in lower_plugins_list:
+                    logger.info(f"Skipping {plugin_name} - plugin flag is on.")
                     continue
-            logging.debug(f"Running plugin: {str(plugin)}")
-            current_plugin = importlib.import_module(plugin)
-            new_plugin = current_plugin.run_check(chk)
-            plugins_output.append(new_plugin)
+
+            logger.debug(f"Running plugin: {plugin_name}")
+            plugins_output.append(plugin_class.run(check, logger))
+
     else:
-        for plugin in discovered_plugins:
-            logging.info(f"plugin is {plugin}")
-            if plugins_list:
-                # Weird bug with virusTotal_plugin where .strip("_plugin") remove the l_plugin
-                # plugin_name = str(plugin).split(".")[-1].strip("_plugin")
-                plugin_name = str(plugin).split(".")[-1][:-7]
-                if plugin_name not in plugins_list:
-                    logging.info(f"Skipping {plugin_name} - plugin flag is on.")
+        for plugin_name, plugin_class in discovered_plugins.items():
+            logger.info(f"Plugin is {plugin_name}")
+
+            if lower_plugins_list:
+                if plugin_name.lower() not in lower_plugins_list:
+                    logger.info(f"Skipping {plugin_name} - plugin flag is on.")
                     continue
-            current_plugin = importlib.import_module(plugin)
-            if chk.tag in current_plugin.tags():
-                new_plugin = current_plugin.run_check(chk)
-                plugins_output.append(new_plugin)
+
+            if check.tag in plugin_class.tags:
+                plugins_output.append(plugin_class.run(check, logger))
+
             else:
-                logging.info(f"Skip plugin {plugin_name} with tag {chk.tag} because of tags mismatch: {current_plugin.tags()}")
+                logger.info(f"Skip plugin {plugin_name} with tag {check.tag} because of tags mismatch: {plugin_class.tags}")
+
     return plugins_output
 
+def process_stream(stream):
+    """
+    Process the stream
+    """
 
-def process(stream):
     found_str = ""
+
     while True:
         data = stream.read(1024*4)
+
         if not data:
             print("Not data")
             break
+
         for char in data:
             if char in printable:
                 found_str += char
+
             elif len(found_str) >= 4:
                 yield found_str
                 found_str = ""
+
             else:
                 found_str = ""

@@ -1,6 +1,4 @@
 import json
-from uuid import uuid4
-
 
 class Plugin:
     """
@@ -79,10 +77,9 @@ class Check:
     @classmethod
     def from_dict(cls, data):
         return cls(
-            data.get('plugins', []),
-            data.get('id', ''),
-            data.get('tag', ''),
             data.get('data', ''),
+            data.get('tag', ''),
+            data.get('id', ''),
         )
     
     def to_json(self):

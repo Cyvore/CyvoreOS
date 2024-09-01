@@ -1,7 +1,6 @@
 import pathlib
 import os
 
-
 def main():
     # open file
     file_path_str = ''

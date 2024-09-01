@@ -7,6 +7,7 @@ disable=C0114,  # Disable missing module docstring
         C0330,  # For line breaks after binary operators, compatible with Black
         C0103,  # Disable variable name checks for consistency with Black styles
         C0303,  # Disable trailing whitespace check
+        C0325,  # Disable unnecessary parens check
         W0718,  # Disable general exception catching
         W0719,  # Disable raising exception with string
 

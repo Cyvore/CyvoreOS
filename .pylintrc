@@ -1,0 +1,33 @@
+[MASTER]
+ignore=tests
+load-plugins=pylint.extensions.mccabe,pylint.extensions.docparams
+
+[MESSAGES CONTROL]
+disable=C0114,  # Disable missing module docstring
+        C0330,  # For line breaks after binary operators, compatible with Black
+        C0103,  # Disable variable name checks for consistency with Black styles
+        C0303,  # Disable trailing whitespace check
+        W0718,  # Disable general exception catching
+
+[REPORTS]
+reports=no
+
+[FORMAT]
+max-line-length=128
+indent-string='    '
+docstring-min-length=10
+
+[DESIGN]
+max-args=7
+max-locals=20
+max-returns=10
+
+[BASIC]
+good-names=i,j,k,ex,_,db
+
+[NAMING]
+function-rgx=[a-z_][a-z0-9_]{2,50}$
+variable-rgx=[a-z_][a-z0-9_]{2,50}$
+
+[LOGGING]
+logging-format-style=old

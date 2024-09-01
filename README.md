@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="https://github.com/Cyvore/CyvoreOS/blob/master/cyvoreLogo.png" width="250" alt="cyvoreLogo" align="left">
+  <img src="https://github.com/Cyvore/CyvoreOS/blob/master/cyvore-logo.png" width="250" alt="cyvore_logo" align="left">
   <br/><br/>
   <br/><br/>
   <br/><br/>
@@ -27,7 +27,7 @@ preinstalls requirements:
 **2. Install packege:**
 
 run the following command:  
-`pip install CyvoreOS`  
+`pip install cyvoreos`  
 **Usage:**
 
 Once installed, you can use CyvoreOS to scan data by importing the `CyvoreOS` module and calling the `scanstring()` function. The `scanstring()` function takes a string as input and returns a list of checks. Each check contains information about the data unit that was scanned, the plugins that were run, and the results of those plugins.
@@ -35,8 +35,8 @@ Once installed, you can use CyvoreOS to scan data by importing the `CyvoreOS` mo
 For example, to scan the URL `https://example.com/evil` for phishing indicators, you would use the following code:
 
 ```
-    import CyvoreOS
-    checks = CyvoreOS.scanstring(<string data>)
+    import cyvoreos
+    checks = cyvoreos.scanstring(<string data>)
     for check in checks:
         print(check)
 ```
@@ -63,7 +63,7 @@ For example, the `virusTotal` plugin checks URLs and files against the VirusTota
 The `abuseIPDB` plugin checks IP addresses against the abuseIPDB database.
 The `cryptoWalletValidator` plugin checks wallet address behaviors online.
 
-You can add your own plugins to CyvoreOS by implementing the [following interface](/CyvoreOS/Template_plugin.py):
+You can add your own plugins to CyvoreOS by implementing the [following interface](/cyvoreos/template_plugin.py):
 
 ## Note:
 **make sure to have in your environment variables tokens for the extranls tools:**  

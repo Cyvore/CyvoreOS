@@ -59,59 +59,42 @@ This would print a list of checks similar to the following:
 ```
 
 CyvoreOS is powered by a suite of plugins, each of which performs a specific task. 
-For example, the `virusTotal` plugin checks URLs and files against the VirusTotal database. 
-The `abuseIPDB` plugin checks IP addresses against the abuseIPDB database.
-The `cryptoWalletValidator` plugin checks wallet address behaviors online.
+For example, the `VirusTotal` plugin checks URLs and files against the VirusTotal database. 
+The `AbuseIPDB` plugin checks IP addresses against the abuseIPDB database.
+The `CryptoWalletValidator` plugin checks wallet address behaviors online.
 
-You can add your own plugins to CyvoreOS by implementing the [following interface](/cyvoreos/template_plugin.py):
+You can add your own plugins to CyvoreOS by implementing the [following interface](/cyvoreos/plugins/base_plugin.py):
 
 ## Note:
 **make sure to have in your environment variables tokens for the extranls tools:**  
 - ABUSE_IPDB_KEY = < key >  
 - VIRUS_TOTAL_KEY = < key >  
+- GOOGLE_SAFE_BROWSING_API_KEY = < key >
 
 **Windows:**   
 `set ABUSE_IPDB_KEY=<replace with api key>`  
 `set VIRUS_TOTAL_KEY=<replace with api key>`  
+`set GOOGLE_SAFE_BROWSING_API_KEY=<replace with api key>`  
 
 **Linux:**   
 `export ABUSE_IPDB_KEY=<replace with api key>`  
 `export VIRUS_TOTAL_KEY=<replace with api key>`  
-
+`export GOOGLE_SAFE_BROWSING_API_KEY=<replace with api key>`  
 
 
 ## Architecture: 
 CyvoreOS is built on a plugin-based architecture, with each plugin performing a specific task. This allows CyvoreOS to be easily extensible and adaptable to new phishing detection techniques.
 
 ### Plugins:
-Every functionality is called a plugin, and will follow a set of rules:   
-* Contains run_check(chk) function.  
-  - run_check is the plugin entry point that will always recive [check object](#Check-object)  
-  - plugin_name is the plugin present name in output.   
-  - output could be dict string or bool.  
-```
-def run_check(chk):
-    plugin_name = "Template-Plugin"
-    output = "example for output"
-    chk.add_plugin(plugin_name,output)
-```  
-* Contains describe() function.   
+Every functionality is called a plugin, and will be inherited from the BasePlugin class:
+* Contains run(check) function.  
+  - run is the plugin entry point that will always recive [check object](#Check-object)  
+
+* Contains name string - Plugin's name
+* Contains description string - Human readable description of the plugin
+* Contains tags array - Relevent data tags
 
 This data will help humans to understand the plugin objective.   
-```
-def describe():
-    desc = """Description of PluginName in a sentence """
-    return desc
-```
-
-* Contains tags() function.  
-tags will help sort what data this plugin is expecting.  
-```
-def tags():
-    tags_list = ["url", "file", "ip", "hash", "email", "domain", "crypto", "username"]
-    return tags_list
-```
-
 
 ### Check object:
 A check object is the smallest unit of data that is scanned by CyvoreOS. A check object can contain a URL, IP address, domain name, cryptocurrency wallet address, or any other type of data that can be used to detect phishing.

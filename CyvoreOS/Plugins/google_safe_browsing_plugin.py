@@ -73,6 +73,9 @@ class GoogleSafeBrowsingPlugin(BasePlugin):
             # Parse the response
             json_response = res.json()
 
+            if not json_response:
+                return { "matches": [] }
+
             return json_response
         
         except Exception as e:

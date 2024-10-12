@@ -52,7 +52,7 @@ class WhoisPlugin(BasePlugin):
                 domain_list = open(file_path, 'r', encoding="utf-8").read().split('\n')
 
             except Exception as e:
-                logger.warning(e)
+                logger.warning(str(e))
                 logger.info("try use local file instead")
                 p = Path(__file__).with_name('top500domains.txt')
                 domain_list = open(p, 'r', encoding="utf-8").read().split('\n')

@@ -49,10 +49,7 @@ def extract_url_and_domain_checks(data: str, logger: logging.Logger = logging) -
 
                 try:
                     # Extract domain from url
-                    domain = urlparse(url).scheme + '://' + urlparse(url).netloc
-
-                    if domain.startswith("www."):
-                        domain = domain[4::]
+                    domain = _extract_domain(url)
 
                     checks.append(Check(data=domain, tag="domain"))
 
@@ -305,3 +302,32 @@ def create_checks(data: str, logger: logging.Logger = logging) -> List[Check]:
 
     logger.info(f"Created total {len(checks)} checks")
     return checks
+
+def _extract_domain(url: str):
+    """
+    Extract domain from url
+
+    Parameters:
+        url (str): url to extract domain from
+    
+    Returns:
+        str: domain with protocol
+    """
+
+    DEFAULT_PROTOCOL = "http://"
+
+    # Parse the URL
+    parsed_url = urlparse(url)
+
+    # If no domain was found, try to add the default protocol
+    if not parsed_url.netloc:
+        parsed_url = urlparse(DEFAULT_PROTOCOL + url)
+
+    # Get the domain
+    domain = parsed_url.scheme + "://" + parsed_url.netloc
+
+    # Remove "www." if present
+    if domain.startswith("www."):
+        domain = domain[4:]
+
+    return domain

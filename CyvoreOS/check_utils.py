@@ -29,7 +29,8 @@ def extract_url_and_domain_checks(data: str, logger: logging.Logger = logging) -
 
     try:
         logger.debug("extractUrlAndDomainChecks Querying for URLs")
-        urls = re.findall(URLREGEX, data)[0]
+        urls_matches = re.findall(URLREGEX, data)
+        urls = [url[0] for url in urls_matches]
 
         if len(urls) > 0:
             urls = set(urls)

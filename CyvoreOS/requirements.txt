@@ -1,9 +1,8 @@
-levenshtein==0.18.1
+levenshtein==0.26.1
 requests==2.27.1
 urllib3
 colorama==0.4.6
 future==0.18.2
-re
 urlexpander==0.0.37
 python-whois==0.9.4
 eml_parser==1.17.5

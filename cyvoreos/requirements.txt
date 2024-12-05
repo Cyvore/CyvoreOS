@@ -1,4 +1,4 @@
-levenshtein==0.26.1
+levenshtein==0.18.1
 requests==2.27.1
 urllib3
 colorama==0.4.6

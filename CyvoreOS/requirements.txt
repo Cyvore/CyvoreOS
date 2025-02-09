@@ -10,3 +10,4 @@ eml_parser==1.17.5
 extract_msg==0.40.0
 vt-py==0.14.0
 jsonpickle==2.2.0
+phonenumbers

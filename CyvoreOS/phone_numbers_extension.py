@@ -81,13 +81,14 @@ def find_phone_numbers(data: str) -> List[str]:
     matches_us = re.findall(USPHONEREG, data)
     matches_israel = re.findall(ISPHONEREG, data)
     matches_europe = re.findall(EUPHONEREG, data)
+    all_matches = matches_us + matches_israel + matches_europe
     logging.debug(
         "Regex matches - US: %d, Israel: %d, Europe: %d",
         len(matches_us),
         len(matches_israel),
         len(matches_europe),
     )
-    for match in matches_us + matches_israel + matches_europe:
+    for match in all_matches:
         rgx_possible.add((match.strip()).lstrip("+"))
     return list(rgx_possible)
 
@@ -124,8 +125,6 @@ def normalize_phone_numbers(phone_list: PhoneNumbersList) -> PhoneNumbersList:
         logging.debug("Normalizing number: %s", phone)
         normalized_phone = normalize_phone_number(phone)
         normal.add(normalized_phone)
-        logging.debug("Normalized number added to the set: %s", normalized_phone)
-
     normalized_list = list(normal)
     logging.info(
         "Normalization complete. Total unique normalized numbers: %d",
@@ -134,13 +133,11 @@ def normalize_phone_numbers(phone_list: PhoneNumbersList) -> PhoneNumbersList:
     return normalized_list
 
 
-# ------------------------------------------------------------------------------------------------------
 def validate_number(num: phonenumbers.PhoneNumber) -> str:
     """
     Validates a PhoneNumber object from the phonenumbers library.
     Checks if the number is possible and valid. Returns the formatted number in E.164 format if valid.
     """
-    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     try:
         logging.debug(
             "Validating phone number: %s",
@@ -148,7 +145,6 @@ def validate_number(num: phonenumbers.PhoneNumber) -> str:
         )
     except Exception as e:
         logging.warning("Error formatting number for logging: %s", e)
-    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     if phonenumbers.is_possible_number(num):
         logging.debug("The number is a possible number.")
@@ -205,7 +201,6 @@ def retry_with_country_codes(phone_number: str) -> List[str]:
                 code,
                 e,
             )
-    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     if valid_numbers:
         logging.info(
             "Retry successful. Total valid numbers found: %d", len(valid_numbers)
@@ -214,13 +209,8 @@ def retry_with_country_codes(phone_number: str) -> List[str]:
         logging.warning(
             "Retry failed for all country codes for number: %s", phone_number
         )
-    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
     # Return the list of valid numbers
     return valid_numbers
-
-
-# ------------------------------------------------------------------------------------------------------
 
 
 def process_phone_numbers(

@@ -126,10 +126,7 @@ def normalize_phone_numbers(phone_list: PhoneNumbersList) -> PhoneNumbersList:
         normalized_phone = normalize_phone_number(phone)
         normal.add(normalized_phone)
     normalized_list = list(normal)
-    logging.info(
-        "NORMALIZATION COMPLETE. Total unique normalized numbers: %d",
-        len(normalized_list),
-    )
+    logging.info("NORMALIZATION COMPLETE.")
     return normalized_list
 
 

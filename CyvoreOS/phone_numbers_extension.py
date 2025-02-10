@@ -161,7 +161,7 @@ def retry_with_country_codes(phone_number: str) -> List[str]:
     """Function will return a list of the same number with different country codes that validate successfully.
     Special handling is applied for countries that retain leading zeros in phone numbers.
     """
-    logging.info("Starting retry with country codes for number: %s", phone_number)
+    logging.info("\n    Starting retry with country codes for number: %s", phone_number)
     valid_numbers = []
     stripped_from_plus = phone_number.lstrip("+")
 

@@ -133,11 +133,12 @@ def normalize_phone_numbers(phone_list: PhoneNumbersList) -> PhoneNumbersList:
     return normalized_list
 
 
-def validate_number(num: phonenumbers.PhoneNumber) -> str:
+def validate_number(n: phonenumbers.PhoneNumber) -> str:
     """
     Validates a PhoneNumber object from the phonenumbers library.
     Checks if the number is possible and valid. Returns the formatted number in E.164 format if valid.
     """
+    num = str(n)
     try:
         logging.debug(
             "Validating phone number: %s",
@@ -147,12 +148,12 @@ def validate_number(num: phonenumbers.PhoneNumber) -> str:
         logging.warning("Error formatting number for logging: %s", e)
 
     if phonenumbers.is_possible_number(num):
-        logging.debug("The number is a possible number.")
+        logging.debug("The number %s is a possible number.", num)
         if phonenumbers.is_valid_number(num):
-            logging.info("The number is valid.")
+            logging.info("The %s number is valid.", num)
             return phonenumbers.format_number(num, phonenumbers.PhoneNumberFormat.E164)
         else:
-            logging.warning("The number is possible but not valid.")
+            logging.warning("The number %s is possible but not valid.", num)
             return "Error - after is_valid_number"
     else:
         logging.warning("The number is not possible.")
@@ -226,7 +227,10 @@ def process_phone_numbers(
     for num in normalized:
         try:
             logging.debug("Attempting to parse number: %s", num)
-            parsed = phonenumbers.parse(num)
+            parsed = phonenumbers.parse(
+                num
+            )  # parsed = phonenumbers.parse("+442083661177") ==> Country Code: 44 National Number: 2083661177 Leading Zero: False
+            # after parse -> PhoneNumber object
             result = validate_number(parsed)
 
             if "Error" not in result:

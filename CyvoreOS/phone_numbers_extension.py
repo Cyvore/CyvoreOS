@@ -1,6 +1,7 @@
 import logging
 from typing import List
 import re
+import copy
 import phonenumbers
 from .regex_patterns import USPHONEREG, ISPHONEREG, EUPHONEREG
 
@@ -135,7 +136,7 @@ def validate_number(n: phonenumbers.PhoneNumber) -> str:
     Validates a PhoneNumber object from the phonenumbers library.
     Checks if the number is possible and valid. Returns the formatted number in E.164 format if valid.
     """
-    num = str(n)
+    num = copy.deepcopy(n)  # coppied phonenumbers object
     try:
         e164_number = phonenumbers.format_number(
             num, phonenumbers.PhoneNumberFormat.E164

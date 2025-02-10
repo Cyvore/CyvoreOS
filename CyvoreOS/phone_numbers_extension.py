@@ -140,10 +140,10 @@ def validate_number(n: phonenumbers.PhoneNumber) -> str:
     """
     num = str(n)
     try:
-        e164number = phonenumbers.format_number(
+        e164_number = phonenumbers.format_number(
             num, phonenumbers.PhoneNumberFormat.E164
         )
-        logging.debug("After formatting: %s STARTING VALIDATION", e164number)
+        logging.debug("After formatting: %s STARTING VALIDATION", e164_number)
     except Exception as e:
         logging.warning("Error formatting number for logging: %s", e)
 
@@ -151,7 +151,7 @@ def validate_number(n: phonenumbers.PhoneNumber) -> str:
         logging.debug("The number %s is a possible number.", num)
         if phonenumbers.is_valid_number(num):
             logging.info("The %s number is valid.", num)
-            return phonenumbers.format_number(num, phonenumbers.PhoneNumberFormat.E164)
+            return e164_number
         else:
             logging.warning("The number %s is possible but not valid.", num)
             return "Error - after is_valid_number"

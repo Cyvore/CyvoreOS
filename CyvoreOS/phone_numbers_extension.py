@@ -143,7 +143,7 @@ def validate_number(n: phonenumbers.PhoneNumber) -> str:
         )
         logging.debug("After formatting: %s STARTING VALIDATION", e164_number)
     except Exception as e:
-        logging.warning("Error formatting number for logging: %s", e)
+        logging.warning("Error formatting number: %s", e)
 
     if phonenumbers.is_possible_number(num):
         logging.debug("The number %s is a possible number.", num)

@@ -33,14 +33,21 @@ def extractPhonesNumbersChecks(data: str) -> List[Check]:
     api_ready_list: PhoneNumbersList = []
 
     rgx_possible_numbers = find_phone_numbers(data)
-    logging.info("Found total %d regex possible numbers.", len(rgx_possible_numbers))
-    normalized_numbers = normalize_phone_numbers(rgx_possible_numbers)
-    logging.info("Found total %d regex normalized numbers.", len(normalized_numbers))
-    api_ready_list = process_phone_numbers(normalized_numbers)
+    if len(rgx_possible_numbers) > 0:
+        logging.info(
+            "Found total %d regex possible numbers.", len(rgx_possible_numbers)
+        )
+        normalized_numbers = normalize_phone_numbers(rgx_possible_numbers)
+        logging.info(
+            "Found total %d regex normalized numbers.", len(normalized_numbers)
+        )
+        api_ready_list = process_phone_numbers(normalized_numbers)
 
-    if len(api_ready_list) > 0:
-        for phone in api_ready_list:
-            checks.append(Check(data=phone, tag="phoneNumber", instanceID=str(uuid4())))
+        if len(api_ready_list) > 0:
+            for phone in api_ready_list:
+                checks.append(
+                    Check(data=phone, tag="phoneNumber", instanceID=str(uuid4()))
+                )
     else:
         logging.warning("No Phone Numbers Found In Case.")
     return checks

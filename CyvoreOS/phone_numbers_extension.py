@@ -222,6 +222,7 @@ def process_phone_numbers(
     results = set()
 
     for num in normalized:
+        result = None
         try:
             parsed = phonenumbers.parse(
                 num
@@ -239,7 +240,7 @@ def process_phone_numbers(
         except Exception as error:
             logging.error("Validation failed for number: < %s > | %s", num, error)
 
-        if result not in results:
+        if result and result not in results:
             try:
                 retried_list = retry_with_country_codes(num)
                 if retried_list:

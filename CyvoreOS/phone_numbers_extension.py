@@ -107,7 +107,6 @@ def normalize_phone_number(phone: str) -> str:
     # Ensure the phone number starts with '+'
     if not normalized.startswith("+"):
         normalized = "+" + normalized
-        logging.debug("Added '+' to the start of the number: %s", normalized)
 
     logging.info("Final normalized phone number: %s", normalized)
     return normalized
@@ -141,28 +140,30 @@ def validate_number(n: phonenumbers.PhoneNumber) -> str:
         e164_number = phonenumbers.format_number(
             num, phonenumbers.PhoneNumberFormat.E164
         )
-        logging.debug("After formatting: %s STARTING VALIDATION", e164_number)
+        logging.debug("\n                   After formatting: %s", e164_number)
+        logging.debug("                     STARTING VALIDATION")
     except Exception as e:
         logging.warning("Error formatting number: %s", e)
 
     if phonenumbers.is_possible_number(num):
         logging.debug("The number %s is a possible number.", num)
         if phonenumbers.is_valid_number(num):
-            logging.info("The %s number is valid.", num)
+            logging.info("%s | $ NUMBER IS VALID $", num)
             return e164_number
         else:
-            logging.warning("The number %s is possible but not valid.", num)
-            return "Error - after is_valid_number"
+            raise Exception("The number is possible but not valid.")
     else:
-        logging.warning("The number is not possible.")
-        return "Error - after is_possible_number"
+        raise Exception("The number is not possible.")
 
 
 def retry_with_country_codes(phone_number: str) -> List[str]:
     """Function will return a list of the same number with different country codes that validate successfully.
     Special handling is applied for countries that retain leading zeros in phone numbers.
     """
-    logging.info("\n    Starting retry with country codes for number: %s", phone_number)
+    logging.info(
+        "                    Starting retry with country codes for number: %s",
+        phone_number,
+    )
     valid_numbers = []
     stripped_from_plus = phone_number.lstrip("+")
 
@@ -170,7 +171,11 @@ def retry_with_country_codes(phone_number: str) -> List[str]:
         try:
             if code not in special_retain_zero_country_codes:
                 full_number = code + stripped_from_plus.lstrip("0")
-                logging.debug("Trying with country code %s: %s", code, full_number)
+                logging.debug(
+                    "\n                   Trying with country code %s: %s",
+                    code,
+                    full_number,
+                )
             else:
                 full_number = code + stripped_from_plus  # keep '0'
                 logging.debug(
@@ -181,7 +186,7 @@ def retry_with_country_codes(phone_number: str) -> List[str]:
             parsed_number = phonenumbers.parse(full_number)
             result = validate_number(parsed_number)
 
-            if "Error" not in result and result not in valid_numbers:
+            if result not in valid_numbers:
                 logging.info(
                     "Successfully validated number with country code %s: %s",
                     code,
@@ -193,22 +198,16 @@ def retry_with_country_codes(phone_number: str) -> List[str]:
             logging.warning(
                 "Failed to parse number with country code %s: %s", code, phone_number
             )
-        except Exception as e:
+        except Exception as error:
             logging.error(
-                "Unexpected error with number %s and country code %s: %s",
-                phone_number,
-                code,
-                e,
+                "Validation Problem for number: < %s > | %s", parsed_number, error
             )
     if valid_numbers:
         logging.info(
             "Retry successful. Total valid numbers found: %d", len(valid_numbers)
         )
     else:
-        logging.warning(
-            "Retry failed for all country codes for number: %s", phone_number
-        )
-    # Return the list of valid numbers
+        raise Exception("Retry failed with all country codes.")
     return valid_numbers
 
 
@@ -224,39 +223,34 @@ def process_phone_numbers(
 
     for num in normalized:
         try:
-            logging.debug("Attempting to parse number: %s", num)
             parsed = phonenumbers.parse(
                 num
             )  # parsed = phonenumbers.parse("+442083661177") ==> Country Code: 44 National Number: 2083661177 Leading Zero: False
             # after parse -> PhoneNumber object
-            result = validate_number(parsed)
+            res = validate_number(parsed)
+            result = res.lstrip("+")
 
-            if "Error" not in result:
-                logging.info("Number parsed and validated successfully: %s", result)
-                results.add(result.lstrip("+"))
-            else:
-                logging.warning(
-                    "Validation failed for number: %s. Result: %s", num, result
-                )
+            logging.info("Number parsed and validated successfully: %s", res)
+            results.add(result)
         except phonenumbers.NumberParseException:
             logging.warning(
                 "Parsing failed for number: %s. Retrying with country codes.", num
             )
-            retried_list = retry_with_country_codes(num)
-            if retried_list:
-                for ret in retried_list:
-                    if "Error" not in ret:
+        except Exception as error:
+            logging.error("Validation failed for number: < %s > | %s", num, error)
+
+        if result not in results:
+            try:
+                retried_list = retry_with_country_codes(num)
+                if retried_list:
+                    for ret in retried_list:
                         logging.info(
                             "Retry successful for number: %s. Validated as: %s",
                             num,
                             ret,
                         )
                         results.add(ret.lstrip("+"))
-            else:
-                logging.error("All retries failed for number: %s", num)
-        except Exception as e:
-            logging.error(
-                "Unexpected error occurred while processing number %s: %s", num, e
-            )
+            except Exception as error:
+                logging.error("For number:    %s      %s", num, error)
     logging.info("Finished processing. Total valid numbers found: %d", len(results))
     return list(results)

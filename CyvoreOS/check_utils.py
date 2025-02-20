@@ -38,9 +38,7 @@ def extractPhonesNumbersChecks(data: str) -> List[Check]:
             "Found total %d regex possible numbers.", len(rgx_possible_numbers)
         )
         normalized_numbers = normalize_phone_numbers(rgx_possible_numbers)
-        logging.info(
-            "Found total %d regex normalized numbers.", len(normalized_numbers)
-        )
+        logging.info("Total %d regex normalized numbers.", len(normalized_numbers))
         api_ready_list = process_phone_numbers(normalized_numbers)
 
         if len(api_ready_list) > 0:

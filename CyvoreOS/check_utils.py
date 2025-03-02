@@ -32,22 +32,25 @@ def extractPhonesNumbersChecks(data: str) -> List[Check]:
     normalized_numbers: PhoneNumbersList = []
     api_ready_list: PhoneNumbersList = []
 
-    rgx_possible_numbers = find_phone_numbers(data)
-    if len(rgx_possible_numbers) > 0:
-        logging.info(
-            "Found total %d regex possible numbers.", len(rgx_possible_numbers)
-        )
-        normalized_numbers = normalize_phone_numbers(rgx_possible_numbers)
-        logging.info("Total %d regex normalized numbers.", len(normalized_numbers))
-        api_ready_list = process_phone_numbers(normalized_numbers)
+    try:
+        rgx_possible_numbers = find_phone_numbers(data)
+        if len(rgx_possible_numbers) > 0:
+            logging.info(
+                "Found Total %d Regex Possible Numbers.", len(rgx_possible_numbers)
+            )
+            normalized_numbers = normalize_phone_numbers(rgx_possible_numbers)
+            logging.info("Total %d Regex Normalized Numbers.", len(normalized_numbers))
+            api_ready_list = process_phone_numbers(normalized_numbers)
 
-        if len(api_ready_list) > 0:
-            for phone in api_ready_list:
-                checks.append(
-                    Check(data=phone, tag="phoneNumber", instanceID=str(uuid4()))
-                )
-    else:
-        logging.warning("No Phone Numbers Found In Case.")
+            if len(api_ready_list) > 0:
+                for phone in api_ready_list:
+                    checks.append(
+                        Check(data=phone, tag="phoneNumber", instanceID=str(uuid4()))
+                    )
+        else:
+            logging.warning("No Phone Numbers Found In Case.")
+    except Exception as e:
+        logging.error("[UNEXPECTED ERROR] : %s", e)
     return checks
 
 

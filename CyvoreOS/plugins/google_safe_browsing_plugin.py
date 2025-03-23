@@ -24,14 +24,12 @@ class GoogleSafeBrowsingPlugin(BasePlugin):
 
     @staticmethod
     def run(check: Check, logger: logging.Logger = logging) -> Plugin:
-        # Stringify the data
         data = str(check.data)
 
-        # Run the plugin
         output = GoogleSafeBrowsingPlugin._execute_plugin(data, logger)
+        score = GoogleSafeBrowsingPlugin._calculate_score(output)
         
-        # Return the plugin
-        return Plugin(check.id, GoogleSafeBrowsingPlugin.name, data, output)
+        return Plugin(check.id, GoogleSafeBrowsingPlugin.name, data, output, score)
 
     @staticmethod
     def print(output: str, logger: logging.Logger = logging):
@@ -83,4 +81,12 @@ class GoogleSafeBrowsingPlugin(BasePlugin):
             
         return {}
     
+    @staticmethod
+    def _calculate_score(output: dict) -> float:
+        score = 0.0
+
+        if len(output.get("matches", [])) > 0:
+            score = 100.0
+
+        return score
     

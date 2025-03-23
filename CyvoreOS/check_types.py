@@ -4,11 +4,12 @@ class Plugin:
     """
     Plugin class is an object that holds the results of a plugin scan.
     """
-    def __init__(self, instanceID: str, name: str, data: str, output: dict):
+    def __init__(self, instanceID: str, name: str, data: str, output: dict, score: float = 0):
         self.instanceID = instanceID
         self.name = name
         self.data = data
         self.output = output
+        self.score = score
 
     def __str__(self): 
         return f"Plugin: {self.name}, data: {self.data}, output: {self.output}"
@@ -28,6 +29,7 @@ class Plugin:
             'name': self.name,
             'data': self.data,
             'output': self.output,
+            'score': self.score,
         }
     
     @classmethod
@@ -36,7 +38,8 @@ class Plugin:
             data.get('instanceID', ''),
             data.get('name', ''),
             data.get('data', ''),
-            data.get('output', {})
+            data.get('output', {}),
+            data.get('score', 0),
         )
 
     def to_json(self):

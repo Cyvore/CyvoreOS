@@ -1,7 +1,6 @@
 import os
 import logging
 import requests
-from cyvoreos.check_types import Check, Plugin
 from cyvoreos.plugins.base_plugin import BasePlugin
 
 # Google Safe Browsing API key
@@ -23,13 +22,11 @@ class GoogleSafeBrowsingPlugin(BasePlugin):
     tags = ["url"]
 
     @staticmethod
-    def run(check: Check, logger: logging.Logger = logging) -> Plugin:
-        data = str(check.data)
-
+    def run(data: str, logger: logging.Logger = logging) -> tuple[dict, float]:
         output = GoogleSafeBrowsingPlugin._execute_plugin(data, logger)
         score = GoogleSafeBrowsingPlugin._calculate_score(output)
         
-        return Plugin(check.id, GoogleSafeBrowsingPlugin.name, data, output, score)
+        return output, score
 
     @staticmethod
     def print(output: str, logger: logging.Logger = logging):

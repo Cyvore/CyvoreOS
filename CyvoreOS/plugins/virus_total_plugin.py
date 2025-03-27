@@ -4,7 +4,6 @@ import os
 import time
 import logging
 import vt
-from cyvoreos.check_types import Check, Plugin
 from cyvoreos.plugins.base_plugin import BasePlugin
 
 try:
@@ -25,13 +24,11 @@ class VirusTotalPlugin(BasePlugin):
     tags = ["url", "domain"]
 
     @staticmethod
-    def run(check: Check, logger: logging.Logger = logging) -> Plugin:
-        data = str(check.data)
-
+    def run(data: str, logger: logging.Logger = logging) -> tuple[dict, float]:
         output = VirusTotalPlugin._execute_plugin(data, logger)
         score = VirusTotalPlugin._calculate_score(output)
 
-        return Plugin(check.id, VirusTotalPlugin.name, data, output, score)
+        return output, score
 
     @staticmethod
     def print(output: str, logger: logging.Logger = logging):

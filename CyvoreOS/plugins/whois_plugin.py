@@ -2,7 +2,6 @@ from pathlib import Path
 import logging
 import whois
 import whois.whois
-from cyvoreos.check_types import Check, Plugin
 from cyvoreos.plugins.base_plugin import BasePlugin
 
 class WhoisPlugin(BasePlugin):
@@ -15,13 +14,11 @@ class WhoisPlugin(BasePlugin):
     tags = ["domain"]
 
     @staticmethod
-    def run(check: Check, logger: logging.Logger = logging) -> Plugin:
-        data = str(check.data)
-
+    def run(data: str, logger: logging.Logger = logging) -> tuple[dict, float]:
         output = WhoisPlugin._execute_plugin(data, logger)
         score = WhoisPlugin._calculate_score(output)
 
-        return Plugin(check.id, WhoisPlugin.name, data, output, score)
+        return output, score
 
     @staticmethod
     def print(output: str, logger: logging.Logger = logging):

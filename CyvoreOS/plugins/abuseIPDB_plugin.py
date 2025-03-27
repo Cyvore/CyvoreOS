@@ -6,7 +6,6 @@ import os
 import socket
 import requests
 import urllib3
-from cyvoreos.check_types import Check, Plugin
 from cyvoreos.plugins.base_plugin import BasePlugin
 
 try:
@@ -26,15 +25,14 @@ class AbuseIPDBPlugin(BasePlugin):
     tags = ["ip", "domain"]
 
     @staticmethod
-    def run(check: Check, logger: logging.Logger = logging) -> Plugin:
-        data = str(check.data)
+    def run(data: str) -> tuple[dict, float]:
         output = "Couldn't reach url: " + data
 
         if AbuseIPDBPlugin._check_url(data):
             output = AbuseIPDBPlugin._execute_plugin(data)
             score = AbuseIPDBPlugin._calculate_score(output)
 
-        return Plugin(check.id, AbuseIPDBPlugin.name, data, output, score)
+        return output, score
 
     @staticmethod
     def print(output: str, logger: logging.Logger = logging):

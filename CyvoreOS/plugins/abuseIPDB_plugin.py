@@ -27,16 +27,14 @@ class AbuseIPDBPlugin(BasePlugin):
 
     @staticmethod
     def run(check: Check, logger: logging.Logger = logging) -> Plugin:
-        # Stringify the data
         data = str(check.data)
-
-        # Default output
         output = "Couldn't reach url: " + data
 
         if AbuseIPDBPlugin._check_url(data):
             output = AbuseIPDBPlugin._execute_plugin(data)
+            score = AbuseIPDBPlugin._calculate_score(output)
 
-        return Plugin(check.id, AbuseIPDBPlugin.name, data, output)
+        return Plugin(check.id, AbuseIPDBPlugin.name, data, output, score)
 
     @staticmethod
     def print(output: str, logger: logging.Logger = logging):
@@ -96,3 +94,24 @@ class AbuseIPDBPlugin(BasePlugin):
         except Exception as e:
             logger.info(e)
             return False
+    
+    @staticmethod
+    def _calculate_score(output: dict) -> float:
+        score = 0.0
+
+        if output.get("data", {}).get("isWhitelisted"):
+            return score
+
+        if output.get("data", {}).get("abuseConfidenceScore") > 24:
+            score += 10.0
+
+        # Check if the ip is tor.
+        if output.get("data", {}).get("isTor"):
+            score += 10.0
+
+        # Check total reports.
+        if output.get("data", {}).get("totalReports") > 0:
+            score += 10.0 * output.get("data", {}).get("totalReports")
+
+        return score
+            

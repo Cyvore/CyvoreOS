@@ -16,14 +16,12 @@ class WhoisPlugin(BasePlugin):
 
     @staticmethod
     def run(check: Check, logger: logging.Logger = logging) -> Plugin:
-        # Stringify the data
         data = str(check.data)
 
-        # Run the plugin
         output = WhoisPlugin._execute_plugin(data, logger)
-        
-        # Return the plugin
-        return Plugin(check.id, WhoisPlugin.name, data, output)
+        score = WhoisPlugin._calculate_score(output)
+
+        return Plugin(check.id, WhoisPlugin.name, data, output, score)
 
     @staticmethod
     def print(output: str, logger: logging.Logger = logging):
@@ -65,4 +63,18 @@ class WhoisPlugin(BasePlugin):
             logger.warning(e)
             
         return ''
+    
+    @staticmethod
+    def _calculate_score(output: dict) -> float:
+        if output.get("creation_date", ""):
+            creation_date = output.get("creation_date", "")
+
+            if not isinstance(creation_date, list):
+                creation_date = [creation_date]
+
+            for date in creation_date:
+                if date.year == 2023:
+                    return 20.0
+        else:
+            return 0.0
     

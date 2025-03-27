@@ -26,15 +26,12 @@ class VirusTotalPlugin(BasePlugin):
 
     @staticmethod
     def run(check: Check, logger: logging.Logger = logging) -> Plugin:
-
-        # Stringify the data
         data = str(check.data)
 
-        # Run the plugin
         output = VirusTotalPlugin._execute_plugin(data, logger)
-        
-        # Return the plugin
-        return Plugin(check.id, VirusTotalPlugin.name, data, output)
+        score = VirusTotalPlugin._calculate_score(output)
+
+        return Plugin(check.id, VirusTotalPlugin.name, data, output, score)
 
     @staticmethod
     def print(output: str, logger: logging.Logger = logging):
@@ -68,4 +65,11 @@ class VirusTotalPlugin(BasePlugin):
             logger.info(e)
 
         return ""
+    
+    @staticmethod
+    def _calculate_score(output: dict) -> float:
+        if output.get("attributes", {}).get("stats", {}).get("malicious", 0) > 0:
+            return (
+                output.get("attributes", {}).get("stats", {}).get("malicious", 0) * 4.0
+            )
     

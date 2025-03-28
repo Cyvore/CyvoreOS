@@ -7,6 +7,7 @@ import socket
 import requests
 import urllib3
 from cyvoreos.plugins.base_plugin import BasePlugin
+from typing import Optional
 
 try:
     ABUSE_IPDB_KEY = os.environ["ABUSE_IPDB_KEY"]
@@ -25,14 +26,18 @@ class AbuseIPDBPlugin(BasePlugin):
     tags = ["ip", "domain"]
 
     @staticmethod
-    def run(data: str) -> tuple[dict, float]:
-        output = "Couldn't reach url: " + data
-
+    def run(data: str) -> tuple[Optional[dict], float]:
         if AbuseIPDBPlugin._check_url(data):
             output = AbuseIPDBPlugin._execute_plugin(data)
-            score = AbuseIPDBPlugin._calculate_score(output)
 
-        return output, score
+            if output is None:
+                return None, 0.0
+
+            score = AbuseIPDBPlugin._calculate_score(output)
+            return output, score
+
+        else:
+            return None, 0.0
 
     @staticmethod
     def print(output: str, logger: logging.Logger = logging):
@@ -49,7 +54,7 @@ class AbuseIPDBPlugin(BasePlugin):
         logger.info("Ip Domain:           ", output["data"]["domain"])
 
     @staticmethod
-    def _execute_plugin(data, logger: logging.Logger = logging) -> dict:
+    def _execute_plugin(data, logger: logging.Logger = logging) -> Optional[dict]:
         """
         Query url/ip in VirusTotal v3 database
 
@@ -75,14 +80,14 @@ class AbuseIPDBPlugin(BasePlugin):
                 params=querystring,
                 timeout=10,
             )
-            
+
             decodedResponse = json.loads(response.text)
 
             return decodedResponse
 
         except Exception as e:
-            logger.info(e)
-            return "Couldn't reach url: " + data
+            logger.error("Error executing abuse ip db plugin", exc_info=e)
+            return None
 
     @staticmethod
     def _check_url(url, logger: logging.Logger = logging) -> bool:
@@ -90,9 +95,9 @@ class AbuseIPDBPlugin(BasePlugin):
             socket.gethostbyname(urllib3.get_host(url)[1])
             return True
         except Exception as e:
-            logger.info(e)
+            logger.error("Error checking url", exc_info=e)
             return False
-    
+
     @staticmethod
     def _calculate_score(output: dict) -> float:
         score = 0.0
@@ -112,4 +117,3 @@ class AbuseIPDBPlugin(BasePlugin):
             score += 10.0 * output.get("data", {}).get("totalReports")
 
         return score
-            

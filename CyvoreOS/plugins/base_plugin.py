@@ -3,6 +3,8 @@
 import logging
 from abc import ABC, abstractmethod
 from cyvoreos.check_types import Check
+from typing import Optional
+
 
 class BasePlugin(ABC):
     """
@@ -15,17 +17,17 @@ class BasePlugin(ABC):
 
     @staticmethod
     @abstractmethod
-    def run(check: Check, logger: logging.Logger = logging):
+    def run(check: Check, logger: logging.Logger = logging) -> Optional[dict]:
         """
         Run the plugin
-        
+
         Parameters:
             check (Check): Check object containing the data to be processed
             logger (Logger): Logger (optional)
         """
 
         raise NotImplementedError("run method must be implemented")
-    
+
     @staticmethod
     @abstractmethod
     def print(output: str, logger: logging.Logger = logging):
@@ -38,4 +40,3 @@ class BasePlugin(ABC):
         """
 
         raise NotImplementedError("print method must be implemented")
-    

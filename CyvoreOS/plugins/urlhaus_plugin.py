@@ -1,6 +1,8 @@
 import logging
 import requests
 from cyvoreos.plugins.base_plugin import BasePlugin
+from typing import Optional
+
 
 class URLhausPlugin(BasePlugin):
     """
@@ -12,10 +14,14 @@ class URLhausPlugin(BasePlugin):
     tags = ["url"]
 
     @staticmethod
-    def run(data: str, logger: logging.Logger = logging) -> tuple[dict, float]:
+    def run(data: str, logger: logging.Logger = logging) -> tuple[Optional[dict], float]:
         output = URLhausPlugin._execute_plugin(data, logger)
+
+        if output is None:
+            return None, 0.0
+
         score = URLhausPlugin._calculate_score(output)
-        
+
         return output, score
 
     @staticmethod
@@ -28,32 +34,32 @@ class URLhausPlugin(BasePlugin):
         """
 
         logger.info(output)
-    
+
     @staticmethod
-    def _execute_plugin(data, logger: logging.Logger = logging) -> dict:
+    def _execute_plugin(data, logger: logging.Logger = logging) -> Optional[dict]:
         try:
             # Request URLhaus
-            res = requests.post('https://urlhaus-api.abuse.ch/v1/url/', { 'url': data }, timeout=10)
+            res = requests.post("https://urlhaus-api.abuse.ch/v1/url/", {"url": data}, timeout=10)
 
             # Check the response
-            if (res.status_code != 200):
+            if res.status_code != 200:
                 raise Exception(f"Error while querying URLhaus API: {res.status_code}")
 
             # Parse the response
             json_response = res.json()
 
-            if json_response['query_status'] == 'ok':
+            if json_response["query_status"] == "ok":
                 return json_response
-            elif json_response['query_status'] == 'no_results':
+            elif json_response["query_status"] == "no_results":
                 return json_response
             else:
                 raise Exception(f"Error while querying URLhaus API: {json_response['query_status']}")
-        
+
         except Exception as e:
-            logger.warning(e)
-            
-        return {}
-    
+            logger.error("Error executing urlhaus plugin", exc_info=e)
+
+        return None
+
     @staticmethod
     def _calculate_score(output: dict) -> float:
         score = 0.0

@@ -9,11 +9,23 @@ import urllib3
 from cyvoreos.plugins.base_plugin import BasePlugin
 from typing import Optional
 
+ABUSE_IPDB_KEY = None
+
 try:
     ABUSE_IPDB_KEY = os.environ["ABUSE_IPDB_KEY"]
     ABUSE_IPDB_URL = "https://api.abuseipdb.com/api/v2/check"
 except Exception as ex:
     logging.info("'ABUSE_IPDB_KEY' wasn't found: %s", ex)
+
+
+def set_abuse_ipdb_key(key: str):
+    """Set the AbuseIPDB key
+
+    Parameters:
+        key (str): AbuseIPDB key
+    """
+    global ABUSE_IPDB_KEY
+    ABUSE_IPDB_KEY = key
 
 
 class AbuseIPDBPlugin(BasePlugin):

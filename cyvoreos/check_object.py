@@ -18,6 +18,7 @@ import extract_msg
 
 import cyvoreos.regex_patterns as regex_patterns
 
+
 class Plugin:
     """
     Plugin is part of check type which holds all plugins output for a check
@@ -131,9 +132,7 @@ class Case:
     checkArray will hold every lead and will only repersent one value - url/file/crypto wallet.
     """
 
-    def __init__(
-        self, raw, empty=False, customID=None, logger: logging.Logger = logging
-    ):
+    def __init__(self, raw, empty=False, customID=None, logger: logging.Logger = logging):
         logger.info("Initializing Case")
 
         self.id = customID or str(uuid4())
@@ -283,11 +282,7 @@ class Case:
                 option1 = "https://" + i
                 option2 = "http://" + i
             # check if exists in unique_list or not
-            if (
-                i not in unique_data
-                and option1 not in unique_data
-                and option2 not in unique_data
-            ):
+            if i not in unique_data and option1 not in unique_data and option2 not in unique_data:
                 unique_data.append(i)
         return unique_data
 
@@ -301,7 +296,7 @@ class Case:
         """
         Check if the file is an email file and parse it to extract the email data
         """
-        
+
         magicNumbers = {
             "eml": [
                 bytes([0x44, 0x65, 0x6C, 0x69, 0x76, 0x65, 0x72, 0x65, 0x64]),
@@ -372,19 +367,13 @@ class Case:
             parsedMime = {}
 
             # gmail- eml
-            if any(
-                self.raw.startswith(magicNumber) for magicNumber in magicNumbers["eml"]
-            ):
-                ep = eml_parser.EmlParser(
-                    include_raw_body=True, include_attachment_data=True
-                )
+            if any(self.raw.startswith(magicNumber) for magicNumber in magicNumbers["eml"]):
+                ep = eml_parser.EmlParser(include_raw_body=True, include_attachment_data=True)
                 parsedMime = ep.decode_email_bytes(self.raw)
                 tmpChk = Check(str(uuid4()), parsedMime, ["mail"])
                 self.checkArray.append(tmpChk)
                 # parsedMime = str(parsedMime.get('attachment') or '')
-                parsedMime = str(parsedMime["body"]) + str(
-                    parsedMime["header"]["header"].get("reply-to") or []
-                )
+                parsedMime = str(parsedMime["body"]) + str(parsedMime["header"]["header"].get("reply-to") or [])
 
             # outlook- msg
             elif self.raw.startswith(magicNumbers["msg"]):

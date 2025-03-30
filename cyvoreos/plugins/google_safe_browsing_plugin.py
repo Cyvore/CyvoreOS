@@ -4,11 +4,24 @@ import requests
 from cyvoreos.plugins.base_plugin import BasePlugin
 from typing import Optional
 
+GOOGLE_SAFE_BROWSING_API_KEY = None
+
 # Google Safe Browsing API key
 try:
-    API_KEY = os.environ["GOOGLE_SAFE_BROWSING_API_KEY"]
+    GOOGLE_SAFE_BROWSING_API_KEY = os.environ["GOOGLE_SAFE_BROWSING_API_KEY"]
 except Exception as ex:
     logging.info("'GOOGLE_SAFE_BROWSING_API_KEY' wasn't found: %s", ex)
+
+
+def set_google_safe_browsing_api_key(key: str):
+    """Set the Google Safe Browsing API key
+
+    Parameters:
+        key (str): Google Safe Browsing API key
+    """
+    global GOOGLE_SAFE_BROWSING_API_KEY
+    GOOGLE_SAFE_BROWSING_API_KEY = key
+
 
 # Google Safe Browsing API v5 URL
 API_URL = "https://safebrowsing.googleapis.com/v4/threatMatches:find"
@@ -59,7 +72,7 @@ class GoogleSafeBrowsingPlugin(BasePlugin):
                 },
             }
 
-            params = {"key": API_KEY}
+            params = {"key": GOOGLE_SAFE_BROWSING_API_KEY}
 
             # Request URLhaus
             res = requests.post(API_URL, json=payload, params=params, timeout=10)

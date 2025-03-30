@@ -1,10 +1,9 @@
-
 import importlib
 import inspect
 import pkgutil
 import string
 import logging
-from typing import List, Union, Dict    
+from typing import List, Union, Dict
 from types import ModuleType
 from cyvoreos import plugins
 from cyvoreos.plugins.base_plugin import BasePlugin
@@ -12,15 +11,14 @@ from cyvoreos.check_types import Check, Plugin
 from cyvoreos.check_utils import create_checks
 
 logging.basicConfig(
-    filename='cyvore_main.log',
-    level=logging.DEBUG,
-    format='%(asctime)s | %(name)s | %(levelname)s | %(message)s'
+    filename="cyvore_main.log", level=logging.DEBUG, format="%(asctime)s | %(name)s | %(levelname)s | %(message)s"
 )
 
 printable = set(string.printable)
 
 # Initialize plugins dictionary
 discovered_plugins: Dict[str, BasePlugin] = {}
+
 
 # Get absolute path for plugins
 def _iter_namespace(ns_pkg):
@@ -34,6 +32,7 @@ def _iter_namespace(ns_pkg):
 
     return pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + ".")
 
+
 def _find_plugin_class(module: ModuleType) -> Union[BasePlugin, None]:
     """
     Find the plugin class in the module
@@ -44,14 +43,15 @@ def _find_plugin_class(module: ModuleType) -> Union[BasePlugin, None]:
     Returns:
         class: plugin class
     """
-    
+
     memebers = inspect.getmembers(module, inspect.isclass)
 
     for _, obj in memebers:
         if issubclass(obj, BasePlugin) and obj != BasePlugin:
             return obj
-        
+
     return None
+
 
 # Discover all plugins
 for _, name, _ in _iter_namespace(plugins):
@@ -61,6 +61,7 @@ for _, name, _ in _iter_namespace(plugins):
     # Add the plugin to the dictionary
     if plugin:
         discovered_plugins[plugin.name] = plugin
+
 
 def exit_with_log(msg, logger: logging.Logger = logging):
     """
@@ -86,11 +87,12 @@ def exit_with_log(msg, logger: logging.Logger = logging):
     # Exit the program
     exit()
 
-def strings(filename, minimum = 4):
+
+def strings(filename, minimum=4):
     """
     Get strings from file
     """
-    
+
     with open(filename, errors="ignore", encoding="utf-8") as f:  # Python 3.x
         result = ""
         for c in f.read():
@@ -119,14 +121,15 @@ def list_plugins(logger: logging.Logger = logging):
 
     exit_with_log("Finish running ls option")
 
+
 def url_from_file_command(args: dict, logger: logging.Logger = logging) -> List[Check]:
     """
     Main function for running all plugins on file
-    
+
     Parameters:
         args: argparse arguments
         logger: logger to use (optional)
-        
+
     Returns:
         List[Check]: list of checks
     """
@@ -160,7 +163,7 @@ def scanstring(data: str, logger: logging.Logger = logging) -> List[Check]:
                     logger.info(f"Skip plugin {plugin_name} because of tags mismatch: {plugin_class.tags}")
 
             else:
-                check.plugins.append(plugin_class.run(check, logger) )
+                check.plugins.append(plugin_class.run(check, logger))
 
     return checks
 
@@ -195,17 +198,19 @@ def run_plugins(data: str, plugins_list: List[str], force=True, logger: logging.
                 check.plugins.append(plugin_class.run(check, logger))
 
         else:
-            for check in checks: 
+            for check in checks:
                 if check.tag in plugin_class.tags:
                     check.plugins.append(plugin_class.run(check, logger))
 
     return checks
 
 
-def run_plugin_for_check(check: Check, plugins_list: List[str], force: bool = True, logger: logging.Logger = logging) -> List[Plugin]:
+def run_plugin_for_check(
+    check: Check, plugins_list: List[str], force: bool = True, logger: logging.Logger = logging
+) -> List[Plugin]:
     """
     Main function for running specific plugins on check
-    
+
     Parameters:
         check (Check): Check - check to run plugins on
         plugins_list: List[str] - list of plugins to run
@@ -248,6 +253,7 @@ def run_plugin_for_check(check: Check, plugins_list: List[str], force: bool = Tr
 
     return plugins_output
 
+
 def process_stream(stream):
     """
     Process the stream
@@ -256,7 +262,7 @@ def process_stream(stream):
     found_str = ""
 
     while True:
-        data = stream.read(1024*4)
+        data = stream.read(1024 * 4)
 
         if not data:
             print("Not data")

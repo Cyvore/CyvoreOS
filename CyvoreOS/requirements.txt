@@ -3,7 +3,6 @@ requests==2.27.1
 urllib3
 colorama==0.4.6
 future==0.18.2
-re
 urlexpander==0.0.37
 python-whois==0.9.4
 eml_parser==1.17.5
@@ -11,3 +10,4 @@ extract_msg==0.40.0
 vt-py==0.14.0
 jsonpickle==2.2.0
 phonenumbers==8.13.54
+pytest==7.4.3

@@ -1,0 +1,33 @@
+253-0000 missing in test find
+
+
+393343091489 #valerio italy +39 | +7 (982) 925-47-45 boris russia +7 | +35542345193 edi fix albania +355              (1)[Eu: 3]
++972 54-553-3441 ori segel, israel +972 | 054-921-7788 yoav +972 | 050-795-3255 guy israel +972 |               (2)[Is: 3]
++972 54-520-3789 alon israel | 050-7710547 alina israel | 0523-837202 ahmad israel | 03-9311166 efi israel      (3)[Is: 4]
+036500456 # my home number still connected in true caller                                                       (4)[Is: 1]
++33 1 23 45 67 89 mina SPAM france +33 | +7 495 123-45-67 russian balberis alekcin ,moscow Russia +7 |                (5)[Eu: 2]
++1 (323) 456-7890",  # song jennifer (SPAM), los anjeles us +1                                            (6)[US: 1]
+
+<<< 14 >>>
+
+  # valid by phonenumbers but weired by truecaller (only country | not found at all)
+    +972 3-9767916",  +44 20 7946 0958                                                                     (11)[Is: 1, Eu: 1]
++49 30 1234567",          <<< EUROPE NOT FOUND >>>                                                                (12)[Eu: 1]
+    +46 8 123 4567                                                                                                (13)[Eu: 1]
+    "+351 21 123 4567"                                                                                            (14)[Eu: 1]
++33 8 12 34 56 78                                                                                                 (15)[Eu: 1]
+    +46 081234567"        <<< EUROPE NOT FOUND >>>                                                                (16)[Eu: 1]
+    +46 1 234 5678",      <<< EUROPE NOT FOUND >>>                                                                (17)[Eu: 1]
+
+<<< 8 >>>
+
+
+    "123-456-7890         # missing in test find
+    "+1 253-0000",  # missing in test find
+12345678901234567890
+    +1 123-456-7890
+    +1 (123) 456-7890 
+    "+1 123.456.7890 # missing in test find
+    +1 123-456-7890"
+
+TOT 22 + 7 = 29

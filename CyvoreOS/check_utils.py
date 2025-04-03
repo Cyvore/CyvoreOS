@@ -34,12 +34,16 @@ def extractPhonesNumbersChecks(data: str) -> List[Check]:
 
     try:
         rgx_possible_numbers = find_phone_numbers(data)
-        if len(rgx_possible_numbers) > 0:
+        if rgx_possible_numbers:
             logging.info(
-                "Found Total %d Regex Possible Numbers.", len(rgx_possible_numbers)
+                "Found Total %d unique (for this stage) Regex Possible Numbers.",
+                len(rgx_possible_numbers),
             )
             normalized_numbers = normalize_phone_numbers(rgx_possible_numbers)
-            logging.info("Total %d Regex Normalized Numbers.", len(normalized_numbers))
+            logging.info(
+                "Total %d unique (for this stage) Regex Normalized Numbers.",
+                len(normalized_numbers),
+            )
             api_ready_list = process_phone_numbers(normalized_numbers)
 
             if len(api_ready_list) > 0:

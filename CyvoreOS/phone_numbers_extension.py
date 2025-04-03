@@ -117,7 +117,15 @@ def normalize_phone_numbers(phone_list: PhoneNumbersList) -> PhoneNumbersList:
     for phone in phone_list:
         logging.debug("Normalizing Number: %s", phone)
         normalized_phone = normalize_phone_number(phone)
-        normal.add(normalized_phone)
+        if (len(normalized_phone) > 7) and (  # plus sign '+' and 6 digits min
+            len(normalized_phone) <= 16  # plus sign '+' and 15 digits max
+        ):
+            normal.add(normalized_phone)
+        else:
+            logging.info(
+                "✋ [IMPROPER LENGTH] %s | Not Added",
+                normalized_phone,
+            )
     normalized_list = list(normal)
     logging.info("NORMALIZATION COMPLETE.")
     return normalized_list

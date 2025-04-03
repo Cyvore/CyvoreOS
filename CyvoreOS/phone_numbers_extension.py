@@ -3,7 +3,7 @@ from typing import List
 import re
 import copy
 import phonenumbers
-from .regex_patterns import USPHONEREG, ISPHONEREG, EUPHONEREG
+from .regex_patterns import PHONEREG
 
 PhoneNumbersList = List[str]
 
@@ -79,17 +79,10 @@ def find_phone_numbers(data: str) -> List[str]:
     """
     rgx_possible = set()
     logging.info("Looking For Phone Numbers")
-    matches_us = re.findall(USPHONEREG, data)
-    matches_israel = re.findall(ISPHONEREG, data)
-    matches_europe = re.findall(EUPHONEREG, data)
-    all_matches = matches_us + matches_israel + matches_europe
-    logging.debug(
-        "Regex matches - US: %d, Israel: %d, Europe: %d",
-        len(matches_us),
-        len(matches_israel),
-        len(matches_europe),
-    )
-    for match in all_matches:
+
+    matches = re.findall(PHONEREG, data)
+    logging.debug("Regex matches - All: %d", len(matches))
+    for match in matches:
         rgx_possible.add((match.strip()).lstrip("+"))
     return list(rgx_possible)
 

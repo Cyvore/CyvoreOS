@@ -14,12 +14,4 @@ DASHREG = re.compile(r"X[1-9A-HJ-NP-Za-km-z]{33}")
 LTCREG = re.compile(r"[LM3][a-km-zA-HJ-NP-Z1-9]{26,33}")
 DOGEREG = re.compile(r"D{1}[5-9A-HJ-NP-U]{1}[1-9A-HJ-NP-Za-km-z]{32}")
 COINS = [BTCREG, DASHREG, LTCREG, DOGEREG]
-USPHONEREG = re.compile(
-    r"(?<!\w)(?:(?:\+?1[-.\s]?)?(?:\(?0?\d{1,3}(?:[-.\s]\d{1,3})?\)?[-.\s/]?)?\(?\d{1,4}(?:[-.\s/]\d{1,4})?\)?[-.\s/]?\d{2,4}[-.\s/]?\d{2,4})(?!\w)"
-)
-ISPHONEREG = re.compile(
-    r"(?:(?:\+972[-.\s]?)?(?:\(?\d{1,3}\)?[-.\s]?)?\d{2,3}[-.\s]?\d{2,4}[-.\s]?\d{2,4})"
-)
-EUPHONEREG = re.compile(
-    r"(?:(?:\+|00)?(?:\d{1,4})[ -]?)?(?:\(?\d{1,4}[ -]?\)?[ -]?)?\d{2,4}(?:[ -]?\d{2,4}){1,4}(?=(?:[^0-9]*\d[^0-9]*){7,15})(?!.*\d{16,})"
-)
+PHONEREG = re.compile(r"(?:\+)?(?=(?:[^0-9]*[0-9]){6,})(?:[0-9\-.\(\)\/]| (?! )){6,}")

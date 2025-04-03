@@ -205,8 +205,12 @@ def retry_with_country_codes(phone_number: str) -> List[str]:
             )
     if valid_numbers:
         logging.info(
-            "Retry Successful. Total Valid Numbers Found: %d", len(valid_numbers)
+            "** RETRY SUMMERY **\nSuccessful. Total Valid Numbers Found: %d",
+            len(valid_numbers),
         )
+        logging.info("The Valid Numbers Created from [ %s ]:", stripped_from_plus)
+        for n in valid_numbers:
+            logging.info("%s", n)
     else:
         raise Exception("❌ [RETRY FAILED] For All Country Codes.")
     return valid_numbers

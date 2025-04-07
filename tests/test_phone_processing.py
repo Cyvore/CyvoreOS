@@ -13,10 +13,27 @@ from CyvoreOS.phone_numbers_extension import (
 )
 from CyvoreOS.check_utils import extractPhonesNumbersChecks
 
-file_path = "test_data.txt"
-full_text = file_content_to_str(file_path)
 PhoneNumbersList = List[str]
 
+
+def file_content_to_str(path: str) -> str:
+    """
+    reads from test_data.txt file and makes the data to a long str data.
+    """
+    logging.info("Reading From File: %s", path)
+    try:
+        with open(path, "r", encoding="utf-8") as file:
+            lines = file.readlines()
+        logging.debug("File read successfully. number of lines inside: %d", len(lines))
+        text = " ".join(lines)  # Joins all lines with a space in between
+        logging.debug("📜 [FULL TEXT] Combined text: \n%s", text)
+    except (IOError, OSError) as e:
+        logging.error("File error: %s", e)
+    return text
+
+
+file_path = "data/test_data.txt"
+full_text: str = file_content_to_str(file_path)
 
 expected_find: PhoneNumbersList = [
     "393343091489",
@@ -42,18 +59,18 @@ expected_find: PhoneNumbersList = [
     "+33 8 12 34 56 78",
     "+46 081234567",
     "+46 1 234 5678",
-    "123-456-7890",  # missing in test find
-    "+1 253-0000",  # missing in test find
-    "253-0000",  # missing in test find
-    "+1 123-456-7890",  # missing in test find
-    "+1 (123) 456-7890",  # missing in test find
-    "+1 123.456.7890",  # missing in test find
-    "+1 123-456-7890",  # missing in test find
+    "123-456-7890",
+    "+1 253-0000",
+    "253-0000",
+    "+1 123-456-7890",
+    "+1 (123) 456-7890",
+    "+1 123.456.7890",
+    "+1 123-456-7890",
 ]  # 29 tot
 
 expected_normalized: PhoneNumbersList = [
     "+393343091489",
-    "+79829254745",  # 9829254745 | # 798292547
+    "+79829254745",
     "+35542345193",
     "+972545533441",
     "+0549217788",
@@ -64,8 +81,8 @@ expected_normalized: PhoneNumbersList = [
     "+039311166",
     "+036500456",
     "+33123456789",
-    "+74951234567",  # 749512345
-    "+13234567890",  # 3234567890
+    "+74951234567",
+    "+13234567890",
     #
     "+97239767916",
     "+442079460958",
@@ -74,13 +91,13 @@ expected_normalized: PhoneNumbersList = [
     "+351211234567",
     "+33812345678",
     "+46081234567",
-    "+4612345678",  # 461234567
+    "+4612345678",
     "+1234567890",
     "+12530000",
     "+2530000",
     "+11234567890",
 ]  # 26 tot
-# 81234567 | # 8123456 | # 1234567 | # 12345678
+
 expected_validated: PhoneNumbersList = [
     "972545533441",
     "972545203789",
@@ -103,8 +120,6 @@ expected_validated: PhoneNumbersList = [
 # that fits different country codes to single number and makes
 # a list of numbers that came out valid ]
 
-# expected_to_be_retried: PhoneNumbersList[tuple] = ["+036500456","+039311166","+0523837202","+0507710547","+0507953255","+0549217788","3343091489",#special retain zero
-#                                             "81234567","","","","","","","",""]
 expected_to_be_retried: List[Tuple[str, str]] = [
     ("036500456", "+972"),
     ("0507710547", "+972"),
@@ -146,23 +161,6 @@ expected_api_ready_lst: PhoneNumbersList = [
 @pytest.fixture
 def setup_full_text():
     return file_content_to_str(file_path)
-
-
-def file_content_to_str(path: str) -> str:
-    """
-    reads from test_data.txt file and makes the data to a long str data.
-    """
-    full_text = None
-    logging.info("Reading From File: %s", path)
-    try:
-        with open(path, "r", encoding="utf-8") as file:
-            lines = file.readlines()
-        logging.debug("File read successfully. number of lines inside: %d", len(lines))
-        full_text = " ".join(lines)  # Joins all lines with a space in between
-        logging.debug("📜 [FULL TEXT] Combined text: \n%s", full_text)
-    except (IOError, OSError) as e:
-        logging.error("File error: %s", e)
-    return full_text
 
 
 def test_find_phone_numbers():
@@ -284,14 +282,12 @@ def test_validate_number():
         except Exception as e:
             print(f"🔴 [{i}] ERROR: {num} Validation Failed. Reason:\n{e}")
 
-    # Print any extra validated numbers that are not in the expected list
     extra_numbers = [num for num in validated_numbers if num not in expected_validated]
     if extra_numbers:
         print(
             f"\n❌ ❗ERROR❗: Extra Numbers In < validated_numbers > (not exist in expected list):\n {extra_numbers}"
         )
 
-    # Print any missing validated numbers, that are not in the expected list
     missing_numbers = [
         num for num in expected_validated if num not in validated_numbers
     ]
@@ -336,7 +332,7 @@ def test_retry_with_country_codes():
                     f"🔴 [{i}] Original Combination Missing: {original_combination} ❌"
                 )
 
-            # Print any extra valid numbers that are not in the expected list
+            # Any extra valid numbers that are not in the expected list
             extra_numbers = [
                 num for num in valid_numbers if num != original_combination
             ]
@@ -367,34 +363,23 @@ def test_process_phone_numbers():
     print(f"📌 Total Numbers To Process: {len(expected_normalized)} ⭕")
     print(f"📌 Expected Processed Numbers: {len(expected_api_ready_lst)} ⭕")
 
-    # Temporarily disable logging
     logging.disable(logging.ERROR)
-
-    # Process the numbers (note: process_phone_numbers already returns a deduplicated list)
     processed = process_phone_numbers(expected_normalized)
-
-    # Re-enable logging
     logging.disable(logging.NOTSET)
 
-    # Print detailed comparison
     print("\n📊 ** Detailed Comparison **")
     print("==========================")
-
-    # Print expected vs actual in parallel
     print("\nExpected Numbers vs Processed Numbers:")
     print("-------------------------------------")
     print("Expected | Processed | Status")
     print("-" * 50)
 
-    # Create sorted lists for comparison
     expected_sorted = sorted(expected_api_ready_lst)
     processed_sorted = sorted(processed)
 
-    # Track successful and missing numbers
     successful = []
     missing = []
 
-    # Print comparison and track results
     for expected in expected_sorted:
         if expected in processed:
             successful.append(expected)
@@ -403,12 +388,10 @@ def test_process_phone_numbers():
             missing.append(expected)
             print(f"{expected:12} | {'':14} | ❌")
 
-    # Print any additional processed numbers
     extra = [p for p in processed_sorted if p not in expected_api_ready_lst]
     for extra_num in extra:
         print(f"{'':12} | {extra_num:14} | ⚠️")
 
-    # Print summary statistics
     print("\n📈 ** Summary Statistics **")
     print("------------------------")
     print(f"Total Expected: {len(expected_api_ready_lst)}")
@@ -417,7 +400,6 @@ def test_process_phone_numbers():
     print(f"Missing Numbers: {len(missing)}")
     print(f"Extra Numbers: {len(extra)}")
 
-    # Print detailed analysis of differences
     if missing or extra:
         print("\n🔍 ** Detailed Analysis **")
         print("------------------------")
@@ -434,11 +416,9 @@ def test_process_phone_numbers():
             for num in sorted(extra):
                 print(f"  ➝ {num}")
 
-    # Print special cases analysis
     print("\n🔎 ** Special Cases Analysis **")
     print("-----------------------------")
 
-    # Check special retain-zero country codes
     retain_zero_cases = [
         num
         for num in processed
@@ -453,7 +433,6 @@ def test_process_phone_numbers():
         for num in sorted(retain_zero_cases):
             print(f"  ➝ {num}")
 
-    # Check Israeli numbers
     israeli_cases = [num for num in processed if num.startswith("972")]
     if israeli_cases:
         print(f"\nIsraeli Numbers ({len(israeli_cases)}):")
@@ -461,7 +440,6 @@ def test_process_phone_numbers():
         for num in sorted(israeli_cases):
             print(f"  ➝ {num}")
 
-    # Final assertion with clear error message
     if len(missing) > 0:
         print("\n❌ ** TEST FAILED **")
         print("==================")
@@ -497,7 +475,6 @@ def test_extractPhonesNumbersChecks_error_handling():
     """
     print("\n🛡️ **TEST: Extract Phones Numbers Checks Error Handling**")
     print("====================================================")
-    # Temporarily disable logging except for errors
     logging.disable(logging.WARNING)
 
     fake_jpeg_header = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01"
@@ -556,7 +533,6 @@ def test_extractPhonesNumbersChecks_error_handling():
                 False
             ), f"Function should handle {description} gracefully, but raised: {str(e)}"
 
-    # Re-enable logging
     logging.disable(logging.NOTSET)
 
     print("\n✅ ** TEST PASSED **")
@@ -583,7 +559,6 @@ def test_find_phone_numbers_length_validation():
     print("Testing regex:")
     print("=====================================")
 
-    # Temporarily disable logging
     logging.disable(logging.WARNING)
 
     test_cases = [
@@ -594,14 +569,14 @@ def test_find_phone_numbers_length_validation():
             "Double plus prefix",
             True,
             ["123456"],
-        ),  # Should only capture first +
+        ),
         (
             "123+456",
             "Plus in middle",
             False,
-        ),  # Should not match (less than 6 digits on each side)
+        ),
         ("123456", "Exactly 6 digits", True, ["123456"]),
-        ("12345", "Less than 6 digits", False),  # Should not match
+        ("12345", "Less than 6 digits", False),
         ("123.456", "6 digits with separator", True, ["123.456"]),
         ("123-456", "6 digits with dash", True, ["123-456"]),
         ("123/456", "6 digits with slash", True, ["123/456"]),
@@ -616,40 +591,41 @@ def test_find_phone_numbers_length_validation():
             "123  456",
             "Double space",
             False,
-        ),  # Should split at double space, both sides too short
+        ),
         (
             "123   456",
             "Triple space",
             False,
-        ),  # Should split at triple space, both sides too short
+        ),
         (
             "123@456",
             "At symbol",
             False,
-        ),  # Should split at @, both sides too short
+        ),
         (
             "123#456",
             "Hash symbol",
             False,
-        ),  # Should split at #, both sides too short
+        ),
         (
             "123abc456",
             "Letters",
             False,
-        ),  # Should split at letters, both sides too short
+        ),
         (
             "123,456",
             "Comma",
             False,
-        ),  # Should split at triple space, both sides too short
+        ),
         ("abc123456", "Letters before digits", True, ["123456"]),
-        ("12a34", "Letter between digits", False),  # Should not match
+        ("12a34", "Letter between digits", False),
         (
             "123.45",
             "Short with separator",
             False,
-        ),  # Can be matched with a space in beginning or end, but will fall later in normalization
-        ("12345", "Too short", False),  # Should not match (5 chars)
+        ),  # Those cases sometimes matched, because a 'not a number' character
+        # can be mistaken as a number but will fall later in normalization
+        ("12345", "Too short", False),
         ("123456 789012", "Long number with a space", True, ["123456 789012"]),
         ("123456@789012", "Two numbers with @ separator", True, ["123456", "789012"]),
         ("+33 1 23 45 67 89", "French number", True, ["33 1 23 45 67 89"]),
@@ -698,7 +674,6 @@ def test_find_phone_numbers_length_validation():
                 print("✅ Numbers were correctly found")
                 print(f"Found numbers: {found}")
 
-                # If expected numbers are specified, verify they're all found
                 if expected_numbers:
                     # Check if all expected numbers are in the found numbers
                     missing_expected = [

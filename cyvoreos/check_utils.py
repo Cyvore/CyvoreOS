@@ -13,6 +13,7 @@ import extract_msg
 from .check_types import Check
 from .regex_patterns import IPV4REGEX, IPV6REGEX, URLREGEX, EMAILREGEX, COINS
 
+
 def extract_url_and_domain_checks(data: str, logger: logging.Logger = logging) -> List[Check]:
     """
     Creates check for every unique url in data
@@ -29,8 +30,7 @@ def extract_url_and_domain_checks(data: str, logger: logging.Logger = logging) -
 
     try:
         logger.debug("extractUrlAndDomainChecks Querying for URLs")
-        urls_matches = re.findall(URLREGEX, data)
-        urls = [url[0] for url in urls_matches]
+        urls = [match.group(0) for match in re.finditer(URLREGEX, data)]
 
         if len(urls) > 0:
             urls = set(urls)
@@ -44,7 +44,7 @@ def extract_url_and_domain_checks(data: str, logger: logging.Logger = logging) -
                     if urlexpander.is_short(url):
                         url = urlexpander.expand(url)
                     checks.append(Check(data=url, tag="url"))
-                    
+
                 except Exception as e:
                     logger.warning(f"Couldn't expand url: {url} - {e}")
 
@@ -64,6 +64,7 @@ def extract_url_and_domain_checks(data: str, logger: logging.Logger = logging) -
         logger.info(e)
 
     return checks
+
 
 def extract_ips_checks(data: str, logger: logging.Logger = logging) -> List[Check]:
     """
@@ -90,7 +91,7 @@ def extract_ips_checks(data: str, logger: logging.Logger = logging) -> List[Chec
                 checks.append(Check(data=ip.exploded, tag="ip", instanceID=str(uuid4())))
 
             except ValueError:
-                logger.debug(f'address/netmask is invalid: {cur_ip}')
+                logger.debug(f"address/netmask is invalid: {cur_ip}")
 
             except Exception as e:
                 logger.warning(f"Couldn't extract ip from: {cur_ip} - {e}")
@@ -99,6 +100,7 @@ def extract_ips_checks(data: str, logger: logging.Logger = logging) -> List[Chec
         logger.warning("No IPs found in case.")
 
     return checks
+
 
 def extract_email_addresses_checks(data: str, logger: logging.Logger = logging) -> List[Check]:
     """
@@ -134,6 +136,7 @@ def extract_email_addresses_checks(data: str, logger: logging.Logger = logging) 
 
     return checks
 
+
 def extract_wallets_checks(data: str, logger: logging.Logger = logging) -> List[Check]:
     """
     Create check for every unique crypto addresses in raw data
@@ -168,72 +171,66 @@ def extract_wallets_checks(data: str, logger: logging.Logger = logging) -> List[
 
     return checks
 
+
 def email_file_check(data: str, logger: logging.Logger = logging) -> List[Check]:
     """
     Create check for email file (.eml or .msg)
     """
 
     checks = []
-    magicNumbers = {'eml': [bytes([0x44, 0x65, 0x6c, 0x69, 0x76, 0x65, 0x72, 0x65, 0x64]),
-                            bytes([0x52, 0x65, 0x74, 0x75, 0x72, 0x6e, 0x2d, 0x50]),
-                            bytes([0x46, 0x72, 0x6f, 0x6d]),
-                            bytes([0x58, 0x2d]),
-                            bytes([0x23, 0x21, 0x20, 0x72, 0x6e, 0x65, 0x77, 0x73]),
-                            bytes([0x46, 0x6f, 0x72, 0x77, 0x61, 0x72, 0x64, 0x20, 0x74, 0x6f]),
-                            bytes([0x46, 0x72, 0x6f, 0x6d, 0x3a]),
-                            bytes([0x4e, 0x23, 0x21, 0x20, 0x72, 0x6e, 0x65, 0x77, 0x73]),
-                            bytes([0x50, 0x69, 0x70, 0x65, 0x20, 0x74, 0x6f]),
-                            bytes([0x52, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x64, 0x3a]),
-                            bytes([0x52, 0x65, 0x6c, 0x61, 0x79, 0x2d, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e,
-                                    0x3a]),
-                            bytes([0x52, 0x65, 0x74, 0x75, 0x72, 0x6e, 0x2d, 0x50, 0x61, 0x74, 0x68, 0x3a]),
-                            bytes([0x52, 0x65, 0x74, 0x75, 0x72, 0x6e, 0x2d, 0x70, 0x61, 0x74, 0x68, 0x3a]),
-                            bytes([0x53, 0x75, 0x62, 0x6a, 0x65, 0x63, 0x74, 0x3a, 0x20])],
-                    'msg': bytes([0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1])}
-    
+    magicNumbers = {
+        "eml": [
+            bytes([0x44, 0x65, 0x6C, 0x69, 0x76, 0x65, 0x72, 0x65, 0x64]),
+            bytes([0x52, 0x65, 0x74, 0x75, 0x72, 0x6E, 0x2D, 0x50]),
+            bytes([0x46, 0x72, 0x6F, 0x6D]),
+            bytes([0x58, 0x2D]),
+            bytes([0x23, 0x21, 0x20, 0x72, 0x6E, 0x65, 0x77, 0x73]),
+            bytes([0x46, 0x6F, 0x72, 0x77, 0x61, 0x72, 0x64, 0x20, 0x74, 0x6F]),
+            bytes([0x46, 0x72, 0x6F, 0x6D, 0x3A]),
+            bytes([0x4E, 0x23, 0x21, 0x20, 0x72, 0x6E, 0x65, 0x77, 0x73]),
+            bytes([0x50, 0x69, 0x70, 0x65, 0x20, 0x74, 0x6F]),
+            bytes([0x52, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x64, 0x3A]),
+            bytes([0x52, 0x65, 0x6C, 0x61, 0x79, 0x2D, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6F, 0x6E, 0x3A]),
+            bytes([0x52, 0x65, 0x74, 0x75, 0x72, 0x6E, 0x2D, 0x50, 0x61, 0x74, 0x68, 0x3A]),
+            bytes([0x52, 0x65, 0x74, 0x75, 0x72, 0x6E, 0x2D, 0x70, 0x61, 0x74, 0x68, 0x3A]),
+            bytes([0x53, 0x75, 0x62, 0x6A, 0x65, 0x63, 0x74, 0x3A, 0x20]),
+        ],
+        "msg": bytes([0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1]),
+    }
+
     try:
         parsedMime = {}
 
         # gmail- eml
-        if any(data.startswith(magicNumber) for magicNumber in magicNumbers['eml']):
+        if any(data.startswith(magicNumber) for magicNumber in magicNumbers["eml"]):
             ep = eml_parser.EmlParser(include_raw_body=True, include_attachment_data=True)
             parsedMime = ep.decode_email_bytes(data)
 
-            if parsedMime['header']['header'].get('reply-to'):
-                checks.append(Check(
-                    data=str(parsedMime['header']['header'].get('reply-to') or []), 
-                    tag="email", 
-                    instanceID=str(uuid4())
-                ))
-            if parsedMime['header']['header'].get('from'):
-                checks.append(Check(
-                    data=str(parsedMime['header']['header'].get('from') or []), 
-                    tag="email", 
-                    instanceID=str(uuid4())
-                ))
-            if parsedMime['header']['header'].get('to'):
-                checks.append(Check(
-                    data=str(parsedMime['header']['header'].get('to') or []), 
-                    tag="email", 
-                    instanceID=str(uuid4())
-                ))
-            if parsedMime['header']['header'].get('cc'):
-                checks.append(Check(
-                    data=str(parsedMime['header']['header'].get('cc') or []), 
-                    tag="email", 
-                    instanceID=str(uuid4())
-                ))
-            if parsedMime['header']['header'].get('bcc'):
-                checks.append(Check(
-                    data=str(parsedMime['header']['header'].get('bcc') or []), 
-                    tag="email", 
-                    instanceID=str(uuid4())
-                ))
+            if parsedMime["header"]["header"].get("reply-to"):
+                checks.append(
+                    Check(data=str(parsedMime["header"]["header"].get("reply-to") or []), tag="email", instanceID=str(uuid4()))
+                )
+            if parsedMime["header"]["header"].get("from"):
+                checks.append(
+                    Check(data=str(parsedMime["header"]["header"].get("from") or []), tag="email", instanceID=str(uuid4()))
+                )
+            if parsedMime["header"]["header"].get("to"):
+                checks.append(
+                    Check(data=str(parsedMime["header"]["header"].get("to") or []), tag="email", instanceID=str(uuid4()))
+                )
+            if parsedMime["header"]["header"].get("cc"):
+                checks.append(
+                    Check(data=str(parsedMime["header"]["header"].get("cc") or []), tag="email", instanceID=str(uuid4()))
+                )
+            if parsedMime["header"]["header"].get("bcc"):
+                checks.append(
+                    Check(data=str(parsedMime["header"]["header"].get("bcc") or []), tag="email", instanceID=str(uuid4()))
+                )
 
             checks.append(Check(data=str(parsedMime), tag="mail", instanceID=str(uuid4())))
 
         # outlook- msg
-        elif data.startswith(magicNumbers['msg']):
+        elif data.startswith(magicNumbers["msg"]):
             parsedMime = extract_msg.openMsg(data)
             # parsedMime = str(parsedMime.attachments)
             parsedMime = str(parsedMime.inReplyTo) + str(parsedMime.body)
@@ -245,6 +242,7 @@ def email_file_check(data: str, logger: logging.Logger = logging) -> List[Check]
         logger.info(e)
 
     return checks
+
 
 def create_checks(data: str, logger: logging.Logger = logging) -> List[Check]:
     """
@@ -297,12 +295,13 @@ def create_checks(data: str, logger: logging.Logger = logging) -> List[Check]:
 
         if wallet_checks:
             checks.extend(wallet_checks)
-            
+
     except Exception as e:
         logger.warning(e)
 
     logger.info(f"Created total {len(checks)} checks")
     return checks
+
 
 def _extract_domain(url: str):
     """
@@ -310,7 +309,7 @@ def _extract_domain(url: str):
 
     Parameters:
         url (str): url to extract domain from
-    
+
     Returns:
         str: domain with protocol
     """

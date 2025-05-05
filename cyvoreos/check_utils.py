@@ -12,6 +12,7 @@ import extract_msg
 
 from .check_types import Check
 from .regex_patterns import IPV4REGEX, IPV6REGEX, URLREGEX, EMAILREGEX, COINS
+from .resources.tlds import TLDS
 
 
 def extract_url_and_domain_checks(data: str, logger: logging.Logger = logging) -> List[Check]:
@@ -36,26 +37,26 @@ def extract_url_and_domain_checks(data: str, logger: logging.Logger = logging) -
             urls = set(urls)
 
             for url in urls:
-                if not url:
-                    continue
-
                 try:
+                    # Extract domain and tld from url
+                    domain, tld = _extract_domain_tld(url)
+
+                    if not url:
+                        continue
+
+                    if tld not in TLDS:
+                        logger.debug(f"Skipping url: {url} because tld is not allowed: {tld}")
+                        continue
+
                     # Expand shortened URLs
                     if urlexpander.is_short(url):
                         url = urlexpander.expand(url)
+
                     checks.append(Check(data=url, tag="url"))
-
-                except Exception as e:
-                    logger.warning(f"Couldn't expand url: {url} - {e}")
-
-                try:
-                    # Extract domain from url
-                    domain = _extract_domain(url)
-
                     checks.append(Check(data=domain, tag="domain"))
 
                 except Exception as e:
-                    logger.warning(f"Couldn't extract domain from url: {url} - {e}")
+                    logger.warning(f"Couldn't expand url: {url} - {e}")
 
         else:
             logger.warning("No URLs found in case.")
@@ -303,15 +304,15 @@ def create_checks(data: str, logger: logging.Logger = logging) -> List[Check]:
     return checks
 
 
-def _extract_domain(url: str):
+def _extract_domain_tld(url: str) -> tuple[str, str]:
     """
-    Extract domain from url
+    Extract domain and tld from url
 
     Parameters:
         url (str): url to extract domain from
 
     Returns:
-        str: domain with protocol
+        tuple[str, str]: domain and tld
     """
 
     DEFAULT_PROTOCOL = "http://"
@@ -330,4 +331,7 @@ def _extract_domain(url: str):
     if domain.startswith("www."):
         domain = domain[4:]
 
-    return domain
+    # Get the tld
+    tld = parsed_url.netloc.split(".")[-1]
+
+    return domain, tld

@@ -38,6 +38,10 @@ def extract_url_and_domain_checks(data: str, logger: logging.Logger = logging) -
 
             for url in urls:
                 try:
+                    # Skip email addresses
+                    if EMAILREGEX.match(url):
+                        continue
+
                     # Extract domain and tld from url
                     domain, tld = _extract_domain_tld(url)
 
@@ -51,6 +55,9 @@ def extract_url_and_domain_checks(data: str, logger: logging.Logger = logging) -
                     # Expand shortened URLs
                     if urlexpander.is_short(url):
                         url = urlexpander.expand(url)
+
+                    if not url.startswith("http://") and not url.startswith("https://"):
+                        url = "https://" + url
 
                     checks.append(Check(data=url, tag="url"))
                     checks.append(Check(data=domain, tag="domain"))

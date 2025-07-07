@@ -4,6 +4,7 @@ from uuid import uuid4
 import ipaddress
 import logging
 import re
+import tldextract
 import urlexpander
 
 # MIME libraries
@@ -325,20 +326,23 @@ def _extract_domain_tld(url: str) -> tuple[str, str]:
     DEFAULT_PROTOCOL = "http://"
 
     # Parse the URL
-    parsed_url = urlparse(url)
+    parsed_url_for_schema = urlparse(url)
 
     # If no domain was found, try to add the default protocol
-    if not parsed_url.netloc:
-        parsed_url = urlparse(DEFAULT_PROTOCOL + url)
+    if not parsed_url_for_schema.netloc:
+        parsed_url_for_schema = urlparse(DEFAULT_PROTOCOL + url)
+
+    parsed_url = tldextract.extract(url)
 
     # Get the domain
-    domain = parsed_url.scheme + "://" + parsed_url.netloc
+    parts = [parsed_url.domain, parsed_url.suffix]
 
-    # Remove "www." if present
-    if domain.startswith("www."):
-        domain = domain[4:]
+    if parsed_url.subdomain:
+        parts.insert(0, parsed_url.subdomain)
+
+    domain = parsed_url_for_schema.scheme + "://" + ".".join(parts)
 
     # Get the tld
-    tld = parsed_url.netloc.split(".")[-1]
+    tld = parsed_url.suffix
 
     return domain, tld

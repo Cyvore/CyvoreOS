@@ -23,7 +23,6 @@ setup(
         "requests==2.27.1",
         "colorama==0.4.6",
         "future==0.18.2",
-        "urlextract==1.5.0",
         "blockcypher==1.0.93",
         "urlexpander==0.0.37",
         "python-whois==0.9.4",
@@ -31,6 +30,7 @@ setup(
         "python-magic==0.4.27",
         "extract_msg==0.40.0",
         "vt-py==0.14.0",
+        "tldextract==5.1.3",
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",

@@ -30,7 +30,7 @@ setup(
         "python-magic==0.4.27",
         "extract_msg==0.40.0",
         "vt-py==0.14.0",
-        "tldextract==5.1.3",
+        "tldextract==5.1.1",
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",

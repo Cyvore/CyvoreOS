@@ -46,7 +46,7 @@ def extract_url_and_domain_checks(data: str, logger: logging.Logger = logging) -
                     # Extract domain and tld from url
                     domain, tld = _extract_domain_tld(url)
 
-                    if not url:
+                    if not url or not domain:
                         continue
 
                     if tld not in TLDS:
@@ -334,12 +334,11 @@ def _extract_domain_tld(url: str) -> tuple[str, str]:
 
     parsed_url = tldextract.extract(url)
 
+    if not parsed_url.domain:
+        return None, None
+
     # Get the domain
     parts = [parsed_url.domain, parsed_url.suffix]
-
-    if parsed_url.subdomain:
-        parts.insert(0, parsed_url.subdomain)
-
     domain = parsed_url_for_schema.scheme + "://" + ".".join(parts)
 
     # Get the tld

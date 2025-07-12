@@ -1,7 +1,29 @@
+import os
 import logging
 import requests
 from cyvoreos.plugins.base_plugin import BasePlugin
 from typing import Optional
+
+URLHAUS_KEY = None
+
+try:
+    URLHAUS_KEY = os.environ["URLHAUS_KEY"]
+except Exception as ex:
+    logging.info("'URLHAUS_KEY' wasn't found: %s", ex)
+
+WAIT = 4.5
+MAX_TRIES = 4
+
+
+def set_urlhaus_key(key: str):
+    """Set the URLhaus key
+
+    Parameters:
+        key (str): URLhaus key
+
+    """
+    global URLHAUS_KEY
+    URLHAUS_KEY = key
 
 
 class URLhausPlugin(BasePlugin):
@@ -39,7 +61,9 @@ class URLhausPlugin(BasePlugin):
     def _execute_plugin(data, logger: logging.Logger = logging) -> Optional[dict]:
         try:
             # Request URLhaus
-            res = requests.post("https://urlhaus-api.abuse.ch/v1/url/", {"url": data}, timeout=10)
+            res = requests.post(
+                "https://urlhaus-api.abuse.ch/v1/url/", {"url": data}, timeout=10, headers={"Auth-Key": URLHAUS_KEY}
+            )
 
             # Check the response
             if res.status_code != 200:

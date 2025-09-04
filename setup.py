@@ -19,7 +19,7 @@ setup(
     download_url="https://github.com/cyvore/cyvoreos/archive/refs/tags/v0.2.0.7-beta.tar.gz",
     keywords=["Anti-Phishing", "Email-Scanner", "Optical-Recognition"],
     install_requires=[
-        "levenshtein==0.18.1",
+        "levenshtein==0.27.1",
         "requests==2.27.1",
         "colorama==0.4.6",
         "future==0.18.2",

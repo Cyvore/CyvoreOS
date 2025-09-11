@@ -20,7 +20,7 @@ setup(
     keywords=["Anti-Phishing", "Email-Scanner", "Optical-Recognition"],
     install_requires=[
         "levenshtein==0.27.1",
-        "requests==2.27.1",
+        "requests==2.32.5",
         "colorama==0.4.6",
         "future==0.18.2",
         "blockcypher==1.0.93",

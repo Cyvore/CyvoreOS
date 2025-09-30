@@ -10,13 +10,13 @@ setup(
     packages=find_packages(),
     package_data={"": [os.path.join(FOLDERNAME, "resources", "top500urls.txt")]},
     include_package_data=True,
-    version="0.3.0.5-beta",
+    version="0.4.0-dev",
     license="MIT",  # https://help.github.com/articles/licensing-a-repository
     description="Next-Gen email threat prevention",
     author="Cyvore",
     author_email="info@cyvore.com",
     url="https://cyvore.com",  # Our website Link
-    download_url="https://github.com/cyvore/cyvoreos/archive/refs/tags/v0.2.0.7-beta.tar.gz",
+    download_url="https://github.com/cyvore/cyvoreos/archive/refs/tags/0.4.0-dev.tar.gz",
     keywords=["Anti-Phishing", "Email-Scanner", "Optical-Recognition"],
     install_requires=[
         "levenshtein==0.27.1",

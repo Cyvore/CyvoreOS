@@ -188,7 +188,9 @@ class IndicatorUtilities:
             if EMAILREGEX.match(url):
                 return set()
 
-            domain, tld = IndicatorUtilities._extract_domain_tld(url)
+            domain, hostnames, tld = IndicatorUtilities._extract_hostname_indicators(
+                url
+            )
 
             if not domain:
                 return set()
@@ -208,14 +210,18 @@ class IndicatorUtilities:
             if not parsed_url.scheme:
                 url_ = "https://" + url_
 
-            return {("url", url_), ("domain", domain)}
+            return {
+                ("url", url_),
+                ("domain", domain),
+                *[("subdomain", hostname) for hostname in hostnames],
+            }
 
         except Exception as e:
             logger.warning("Couldn't expand url: %s, error: %s", url, e)
             return set()
 
     @staticmethod
-    def _extract_domain_tld(url: str) -> tuple[str, str]:
+    def _extract_hostname_indicators(url: str) -> tuple[str, list[str], str]:
         """
         Extract domain and tld from url.
 
@@ -223,7 +229,10 @@ class IndicatorUtilities:
             url (str): url to extract domain from
 
         Returns:
-            tuple[str, str]: domain and tld
+            tuple[str, list[str], str]:
+            - domain: domain name
+            - hostnames: list of hostnames (full hostname and progressive parent domains)
+            - tld: top level domain
 
         """
         default_protocol = "https://"
@@ -236,10 +245,20 @@ class IndicatorUtilities:
         parsed_url = tldextract.extract(url)
 
         if not parsed_url.domain:
-            return None, None
+            return None, [], None
 
         parts = [parsed_url.domain, parsed_url.suffix]
         domain = ".".join(parts)
 
+        hostnames = []
+        if parsed_url.subdomain:
+            full_hostname = f"{parsed_url.subdomain}.{domain}"
+            hostnames.append(full_hostname)
+
+            subdomain_parts = parsed_url.subdomain.split(".")
+            for i in range(1, len(subdomain_parts)):
+                parent_hostname = ".".join(subdomain_parts[i:]) + "." + domain
+                hostnames.append(parent_hostname)
+
         tld = parsed_url.suffix
-        return domain, tld
+        return domain, hostnames, tld

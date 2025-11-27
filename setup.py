@@ -10,7 +10,7 @@ setup(
     packages=find_packages(),
     package_data={"": [os.path.join(FOLDERNAME, "resources", "top500urls.txt")]},
     include_package_data=True,
-    version="0.4.0-dev",
+    version="0.4.1-dev",
     license="MIT",  # https://help.github.com/articles/licensing-a-repository
     description="Next-Gen email threat prevention",
     author="Cyvore",

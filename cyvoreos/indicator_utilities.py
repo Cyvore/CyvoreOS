@@ -103,7 +103,8 @@ class IndicatorUtilities:
             list[tuple[str, str]]: list of indicators
 
         """
-        ips = {*re.findall(IPV4REGEX, data), *re.findall(IPV6REGEX, data)}
+        ips = {*re.findall(IPV4REGEX, data)}
+        ips.update(m.group(0) for m in re.finditer(IPV6REGEX, data))
         indicators: set[tuple[str, str]] = set()
 
         for cur_ip in ips:
@@ -184,8 +185,8 @@ class IndicatorUtilities:
 
         """
         try:
-            # Skip email addresses
-            if EMAILREGEX.match(url):
+            # Skip mailto links and URL-shaped tokens that contain an email (see extract_email_addresses)
+            if url.lower().startswith("mailto:") or EMAILREGEX.search(url):
                 return set()
 
             domain, tld = IndicatorUtilities._extract_domain_tld(url)

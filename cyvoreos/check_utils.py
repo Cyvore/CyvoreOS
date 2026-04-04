@@ -39,8 +39,8 @@ def extract_url_and_domain_checks(data: str, logger: logging.Logger = logging) -
 
             for url in urls:
                 try:
-                    # Skip email addresses
-                    if EMAILREGEX.match(url):
+                    # Skip mailto links and URL-shaped tokens that contain an email
+                    if url.lower().startswith("mailto:") or EMAILREGEX.search(url):
                         continue
 
                     # Extract domain and tld from url
@@ -88,7 +88,8 @@ def extract_ips_checks(data: str, logger: logging.Logger = logging) -> List[Chec
     """
 
     logger.debug("Querying for IPs")
-    ips = re.findall(IPV4REGEX, data) + re.findall(IPV6REGEX, data)
+    ips = list(re.findall(IPV4REGEX, data))
+    ips.extend(m.group(0) for m in re.finditer(IPV6REGEX, data))
     checks = []
 
     if len(ips) > 0:

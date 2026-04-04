@@ -88,8 +88,7 @@ def extract_ips_checks(data: str, logger: logging.Logger = logging) -> List[Chec
     """
 
     logger.debug("Querying for IPs")
-    ips = list(re.findall(IPV4REGEX, data))
-    ips.extend(m.group(0) for m in re.finditer(IPV6REGEX, data))
+    ips = re.findall(IPV4REGEX, data) + re.findall(IPV6REGEX, data)
     checks = []
 
     if len(ips) > 0:

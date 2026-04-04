@@ -103,8 +103,7 @@ class IndicatorUtilities:
             list[tuple[str, str]]: list of indicators
 
         """
-        ips = {*re.findall(IPV4REGEX, data)}
-        ips.update(m.group(0) for m in re.finditer(IPV6REGEX, data))
+        ips = {*re.findall(IPV4REGEX, data), *re.findall(IPV6REGEX, data)}
         indicators: set[tuple[str, str]] = set()
 
         for cur_ip in ips:

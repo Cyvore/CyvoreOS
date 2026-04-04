@@ -10,6 +10,15 @@ Welcome to CyvoreOS, an open source tool for automated phishing detection! :fish
 
 CyvoreOS works by running a suite of external tools and internal plugins to scan data for phishing indicators. It can be used to scan URLs, IP addresses, domain names, cryptocurrency wallets and more!
 
+### Tests:
+
+From the repository root, install the package in editable mode with the test extra, then run pytest:
+
+```
+pip install -e ".[tests]"
+python -m pytest tests/ -q
+```
+
 ### Install:
 There are two ways to install CyvoreOS:
 

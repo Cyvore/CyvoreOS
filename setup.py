@@ -32,6 +32,11 @@ setup(
         "vt-py==0.14.0",
         "tldextract==5.1.1",
     ],
+    extras_require={
+        "tests": [
+            "pytest",
+        ],
+    },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",

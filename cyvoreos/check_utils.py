@@ -39,8 +39,8 @@ def extract_url_and_domain_checks(data: str, logger: logging.Logger = logging) -
 
             for url in urls:
                 try:
-                    # Skip email addresses
-                    if EMAILREGEX.match(url):
+                    # Skip mailto links and URL-shaped tokens that contain an email
+                    if url.lower().startswith("mailto:") or EMAILREGEX.search(url):
                         continue
 
                     # Extract domain and tld from url

@@ -184,8 +184,8 @@ class IndicatorUtilities:
 
         """
         try:
-            # Skip email addresses
-            if EMAILREGEX.match(url):
+            # Skip mailto links and URL-shaped tokens that contain an email (see extract_email_addresses)
+            if url.lower().startswith("mailto:") or EMAILREGEX.search(url):
                 return set()
 
             domain, hostnames, tld = IndicatorUtilities._extract_hostname_indicators(
